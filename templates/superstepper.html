@@ -1,0 +1,80 @@
+<html>
+<head>
+
+    <script>
+        var debug = true;
+
+        var viewport_x = window.innerWidth; 
+        var viewport_y = window.innerHeight; 
+        
+        var colors = {"lane_bg": "#eeeeee"};
+        var dimensions = {"lane_w": 600};
+
+        addEventListener("resize", (event) => { 
+            viewport_x = window.innerWidth; 
+            viewport_y = window.innerHeight; 
+            if (debug) console.log("viewport is " + viewport_x + " " + viewport_y)
+        });
+
+        function drawLane(elementId){
+            let canvas = document.getElementById(elementId);
+            let context = canvas.getContext("2d");
+        
+            context.fillStyle = colors["lane_bg"];
+            context.fillRect(0, 0, dimensions.lane_w, viewport_y); 
+        
+            context.moveTo(dimensions.lane_w / 4, 0);
+            context.lineTo(dimensions.lane_w / 4, viewport_y);
+            context.stroke();
+        
+            context.moveTo(dimensions.lane_w / 2, 0);
+            context.lineTo(dimensions.lane_w / 2, viewport_y);
+            context.stroke();
+            
+            context.moveTo((dimensions.lane_w / 4) * 3, 0);
+            context.lineTo((dimensions.lane_w / 4) * 3, viewport_y);
+            context.stroke();
+        }
+
+        function step(dt){
+            let canvas = document.getElementById("lane");
+            let context = canvas.getContext("2d");
+            
+            context.canvas.height = viewport_y;
+            drawLane("lane"); 
+            
+            //make the rest of the damn editor
+            if (debug){
+                if (playing){
+                    context.fillStyle = "red";
+                    console.log("HLLLELL;");
+                    context.font = "20px Arial";
+                    context.fillText("Audio time: " + toString(audioContext.getOutputTimestamp()), 30, 20); //figure out whats wrong with this
+                }
+            }
+
+
+            requestAnimationFrame(step);
+        }
+    </script>
+</head>
+<body>
+    <form id="upload">
+        <input type="file" value="Select Audio" id="audio_upload" />
+    </form>
+    
+    <input type="button" value="Play" id="play" onclick="play()" />
+    
+    <input type="button" value="Stop" id="stop" onclick="stop()"/>
+
+    <canvas id="lane" width="640" height = "480"></canvas>
+    
+    <script src="{{ url_for('static', filename = 'script.js') }}"></script>
+    <script>
+        let canvas = document.getElementById("lane");
+        let context = canvas.getContext("2d");
+    
+        step();
+    </script> 
+</body>
+</html>
