@@ -1,0 +1,14 @@
+As of 1/18/25:
+It remains to be proven whether sync is definitely, absolutely spot on, but for posterity here's what exists at the moment (+some general info about how the audio flow is set up):
+
+    -The audio file supplied by the user, the audio context, and the AudioScheduledSourceNode (the endpoint) are all globals declared in script.js. This is because they all need to be accessed in numerous places.
+    -The 'timestamp' variable (script.js) is the value indicating an exact time in the audio. Read this to know where you are in the song. It's populated in step() (the top level loop) on each frame according to:
+        -The start time as supplied by the user as an initial offset
+        -... plus the current timestamp of the audio as obtained from AudioContext.getOutputTimestamp()
+        -...plus the baseAudioOffset() which is the expected output latency of the audio hardware
+    -step() also populates a value which is local to it, "audioVisualDiff", as the difference in the amount of time elapsed between the current and previous frame, and the amount of audio that has elapsed in that amount of time (this does fluctuate!)
+    -For most purposes, to get time values that are useful, you want timestamp + audioVisualDiff
+
+Also:
+    -timestamp is measured in seconds
+    -the time elapsed value supplied to step() by requestAnimationFrame() is in milliseconds 
