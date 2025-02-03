@@ -7,12 +7,34 @@ let lastStartTime = 0; //start time used for the most recent playback, used for 
 let beatSeconds = 0; //length of one beat in seconds
 let beatDistancePx = 50; //amount of vertical px comprising one beat
 let speedMod = 1;
+let chartRawFile;
 
 document.getElementById("audio_upload").addEventListener("change", upload_audio);
+document.getElementById("chart_upload").addEventListener("change", upload_chart);
 
 function upload_audio(){
-    console.log(document.getElementById("audio_upload"))
+    console.log(document.getElementById("audio_upload"));
     audio = document.getElementById("audio_upload").files[0];
+}
+
+function upload_chart(){
+    console.log(document.getElementById("chart_upload"));
+    chartRawFile = document.getElementById("chart_upload").files[0];
+    console.log(chartRawFile.text());
+    processChart();
+}
+
+async function processChart(){
+    if (chartRawFile != null){
+        const parser = new DOMParser();
+        const parsed = parser.parseFromString(await chartRawFile.text(), "application/xml");
+        
+        //boilerplate, to see how this works
+        console.log("parsed:", parsed);
+        console.log(parsed.children[0].children[0]);
+        console.log(parsed.childNodes);
+        console.log(parsed.childNodes[0].childNodes[2]);
+    }
 }
 
 function baseAudioOffset(){
