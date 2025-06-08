@@ -17,8 +17,8 @@
         });
 
         function drawLane(elementId){
-            let canvas = document.getElementById(elementId);
-            let context = canvas.getContext("2d");
+            canvas = document.getElementById(elementId);
+            context = canvas.getContext("2d");
         
             context.fillStyle = colors["lane_bg"];
             context.fillRect(0, 0, dimensions.lane_w, viewport_y); 
@@ -37,39 +37,53 @@
         }
         
         let lastDt = 0;
-        let lastTimestamp = 0;
+
+        let beatWindow = viewport_y;
+
+        let boop = true;
+
+        let beatsElapsed = 0;
+        let lastBeats = 0;
+        
         function step(dt){
-            let canvas = document.getElementById("lane");
-            let context = canvas.getContext("2d");
-            let audioVisualDiff = 0;
+            if (playing){
+                timestamp = audioContext.currentTime - audioContext.outputLatency - startOffset;
+                beatsElapsed = timestamp * (bpm/60);
+
+                if (boop){
+                    if (Math.floor(beatsElapsed) - Math.floor(lastBeats) > 0){
+                        boopcontext = new AudioContext();
+                        clapsound = new OscillatorNode(boopcontext, { frequency: 659, type:"square"});
+
+                        let gain = new GainNode(boopcontext, {gain: 0.08});
+                        gain.connect(boopcontext.destination);
+
+                        clapsound.connect(gain);
+
+                        console.log("boop!");
+                        clapsound.start();
+                        clapsound.stop(0.07);
+                    }
+                    lastBeats = beatsElapsed;
+                }
+
+            }
 
             context.canvas.height = viewport_y;
-            drawLane("lane"); 
-
-            let beatWindow = viewport_y
-
-            //if the chart is playing, update the timestamp automatically
-            //audioContext is null before script.js is initialized and undefined after
-            //if (audioContext != null && audioContext != undefined && playing){
-            if (playing){
-                //contextTime reports the time since the audio began playing, not from the audio file's 0:00 position
-                timestamp = parseInt(lastStartTime) + audioContext.getOutputTimestamp()["contextTime"] + baseAudioOffset();
-                
-                audioVisualDiff = (dt - lastDt)*(1/1000) - (timestamp - lastTimestamp); 
-                
-                //console.log({"dt": dt-lastDt, "audio dt": (timestamp - lastTimestamp)*1000, "audioVisualDiff": audioVisualDiff, "timestampMS": timestamp * 1000});
-                //console.log({"outputLatency": audioContext.outputLatency, "baseLatency": audioContext.baseLatency});
-            }
+            drawLane("lane");
 
             if (debug){
                 context.fillStyle = "red";
                 context.font = "20px Arial";
-                context.fillText("timestamp:" + timestamp + audioVisualDiff, 0, 20); 
-                context.fillText("beat:" + beatAt(timestamp + audioVisualDiff), 0, 40);
+
+                //testing new
+                context.fillText("timestamp" + timestamp, 0, 20);
+                context.fillText("beat:" + beatsElapsed, 0, 40);
             }
 
+            beatWindow = viewport_y
+
             lastDt = dt;
-            lastTimestamp = timestamp;
             requestAnimationFrame(step);
         }
     </script>
@@ -92,7 +106,7 @@
                 <input type="file" value="Load Chart" id="chart_upload" />
             </form>
             
-            <input type="button" value="Play" id="play" onclick="play(document.getElementById('startTime').value)" />
+            <input type="button" value="Play" id="play" onclick="start_audio(document.getElementById('startTime').value)" />
             <input type="button" value="Stop" id="stop" onclick="stop()"/>
             
             <div>

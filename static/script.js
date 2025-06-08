@@ -2,12 +2,20 @@ let audio; //audio file supplied by the user
 let audioContext; 
 let audioEndpoint; //AudioScheduledSourceNode
 let playing = false;
+let bpm = 0;
+
+//clap sound
+let boopContext;
+let clapsound;
+
 let timestamp = 0; //fine position in the song
 let lastStartTime = 0; //start time used for the most recent playback, used for offsetting timestamp to position in the song
 let beatSeconds = 0; //length of one beat in seconds
 let beatDistancePx = 50; //amount of vertical px comprising one beat
 let speedMod = 1;
 let chartRawFile;
+
+let startOffset = 0;
 
 document.getElementById("audio_upload").addEventListener("change", upload_audio);
 document.getElementById("chart_upload").addEventListener("change", upload_chart);
@@ -24,6 +32,7 @@ function upload_chart(){
     processChart();
 }
 
+//we should be able to either nuke or otherwise rewrite this
 async function processChart(){
     if (chartRawFile != null){
         const parser = new DOMParser();
@@ -47,26 +56,24 @@ function effectiveBeatDistance(){
     return beatDistancePx * speedMod;
 }
 
-async function play(startTime){
+async function start_audio(startTime){
     if (audio != null){
-        beatSeconds = parseInt(document.getElementById("bpmInput").value) / 60;
+        bpm = parseInt(document.getElementById("bpmInput").value);
+        beatSeconds = bpm / 60;
         startTime = startTime / beatSeconds; //we're taking start time as number of beats, but we want number of seconds
 
         //const audioContext = new AudioContext();
         audioContext = new AudioContext();
+
         buffer = await audioContext.decodeAudioData(await audio.arrayBuffer());
         
         audioEndpoint = audioContext.createBufferSource();
         audioEndpoint.buffer = buffer;
         audioEndpoint.connect(audioContext.destination);
-        audioEndpoint.start(0, startTime);
-        if (debug){
-            console.log("Start: " + audio.name);
-        }
     
         lastStartTime = startTime + baseAudioOffset();
 
-        //note that this event fires when the playback is stopped by stop() too
+        //this event fires when the playback is stopped by stop() too
         audioEndpoint.addEventListener("ended", (event) => {
             if (debug){
                 console.log("Playback ended");
@@ -74,13 +81,21 @@ async function play(startTime){
             playing = false;
         });
         playing = true;
+
+        audioEndpoint.start(0, startTime);
+        if (debug){
+            console.log("Start: " + audio.name);
+        }
+
+        //yes, this is actually the only thing that seems to work
+        while (audioContext.currentTime == 0);
+        startOffset = audioContext.currentTime;
     }
 }
 
 function stop(){
     audioEndpoint.stop();
     playing = false;
-    //timestamp = audioContext.getOutputTimestamp()["contextTime"];
 }
 
 function beatAt(time){
