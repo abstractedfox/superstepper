@@ -1,94 +1,19 @@
 <html>
 <head>
+    <script type="module">
+        import { start } from "../static/main.js";
+        import { playing, uploadAudio, uploadChart, processChart, startAudio, stopAudio } from "../static/script.js";
 
-    <script>
-        var debug = true;
+        document.querySelector("#button_play").addEventListener("click", (event) => { startAudio(document.getElementById("startTime").value)});
+        document.querySelector("#button_stop").addEventListener("click", (event) => { stopAudio() });
 
-        var viewport_x = window.innerWidth; 
-        var viewport_y = window.innerHeight; 
-        
-        var colors = {"lane_bg": "#eeeeee", "lane_pulse": "#eeeeff"};
-        var dimensions = {"lane_w": 600};
-
-        addEventListener("resize", (event) => { 
-            viewport_x = window.innerWidth; 
-            viewport_y = window.innerHeight; 
-            if (debug) console.log("viewport is " + viewport_x + " " + viewport_y)
-        });
-
-        function drawLane(elementId){
-            canvas = document.getElementById(elementId);
-            context = canvas.getContext("2d");
-        
-            context.fillStyle = colors["lane_bg"];
-            context.fillRect(0, 0, dimensions.lane_w, viewport_y); 
-        
-            context.moveTo(dimensions.lane_w / 4, 0);
-            context.lineTo(dimensions.lane_w / 4, viewport_y);
-            context.stroke();
-        
-            context.moveTo(dimensions.lane_w / 2, 0);
-            context.lineTo(dimensions.lane_w / 2, viewport_y);
-            context.stroke();
-            
-            context.moveTo((dimensions.lane_w / 4) * 3, 0);
-            context.lineTo((dimensions.lane_w / 4) * 3, viewport_y);
-            context.stroke();
-        }
-        
-        let lastDt = 0;
-
-        let beatWindow = viewport_y;
-
-        let boop = true;
-
-        let beatsElapsed = 0;
-        let lastBeats = 0;
-        
-        function step(dt){
-            if (playing){
-                timestamp = audioContext.currentTime - audioContext.outputLatency - startOffset;
-                beatsElapsed = timestamp * (bpm/60);
-
-                if (boop){
-                    if (Math.floor(beatsElapsed) - Math.floor(lastBeats) > 0){
-                        boopcontext = new AudioContext();
-                        clapsound = new OscillatorNode(boopcontext, { frequency: 659, type:"square"});
-
-                        let gain = new GainNode(boopcontext, {gain: 0.08});
-                        gain.connect(boopcontext.destination);
-
-                        clapsound.connect(gain);
-
-                        console.log("boop!");
-                        clapsound.start();
-                        clapsound.stop(0.07);
-                    }
-                    lastBeats = beatsElapsed;
-                }
-
-            }
-
-            context.canvas.height = viewport_y;
-            drawLane("lane");
-
-            if (debug){
-                context.fillStyle = "red";
-                context.font = "20px Arial";
-
-                //testing new
-                context.fillText("timestamp" + timestamp, 0, 20);
-                context.fillText("beat:" + beatsElapsed, 0, 40);
-            }
-
-            beatWindow = viewport_y
-
-            lastDt = dt;
-            requestAnimationFrame(step);
-        }
+        start(document.getElementById("lane").getContext("2d"));
     </script>
 
     <style type="text/css">
+        body{
+            margin: 0px;
+        }
         #container{
             display:flex;
         }
@@ -106,8 +31,8 @@
                 <input type="file" value="Load Chart" id="chart_upload" />
             </form>
             
-            <input type="button" value="Play" id="play" onclick="start_audio(document.getElementById('startTime').value)" />
-            <input type="button" value="Stop" id="stop" onclick="stop()"/>
+            <input type="button" value="Play" id="button_play"/>
+            <input type="button" value="Stop" id="button_stop" onclick="stop()"/>
             
             <div>
                 <input type="number" value="0" id="startTime" /> 
@@ -122,13 +47,5 @@
             <canvas id="lane" width="640" height = "480"></canvas>
         </div>        
     </div>
-
-    <script src="{{ url_for('static', filename = 'script.js') }}"></script>
-    <script>
-        let canvas = document.getElementById("lane");
-        let context = canvas.getContext("2d");
-    
-        step();
-    </script> 
 </body>
 </html>

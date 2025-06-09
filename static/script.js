@@ -1,31 +1,27 @@
 let audio; //audio file supplied by the user
-let audioContext; 
 let audioEndpoint; //AudioScheduledSourceNode
-let playing = false;
-let bpm = 0;
+export let bpm = 0;
+export let playing = false;
+export let audioContext; 
 
-//clap sound
-let boopContext;
-let clapsound;
-
-let timestamp = 0; //fine position in the song
-let lastStartTime = 0; //start time used for the most recent playback, used for offsetting timestamp to position in the song
 let beatSeconds = 0; //length of one beat in seconds
 let beatDistancePx = 50; //amount of vertical px comprising one beat
 let speedMod = 1;
 let chartRawFile;
+export let startOffset = 0; //an arbitrary amount of lag when the audio first starts
+export let lastStartTime = 0; //start time used for the most recent playback, used for offsetting timestamp to position in the song
 
-let startOffset = 0;
+let debug = false;
 
-document.getElementById("audio_upload").addEventListener("change", upload_audio);
-document.getElementById("chart_upload").addEventListener("change", upload_chart);
+document.getElementById("audio_upload").addEventListener("change", uploadAudio);
+document.getElementById("chart_upload").addEventListener("change", uploadChart);
 
-function upload_audio(){
+export function uploadAudio(){
     console.log(document.getElementById("audio_upload"));
     audio = document.getElementById("audio_upload").files[0];
 }
 
-function upload_chart(){
+export function uploadChart(){
     console.log(document.getElementById("chart_upload"));
     chartRawFile = document.getElementById("chart_upload").files[0];
     console.log(chartRawFile.text());
@@ -33,7 +29,7 @@ function upload_chart(){
 }
 
 //we should be able to either nuke or otherwise rewrite this
-async function processChart(){
+export async function processChart(){
     if (chartRawFile != null){
         const parser = new DOMParser();
         const parsed = parser.parseFromString(await chartRawFile.text(), "application/xml");
@@ -56,22 +52,20 @@ function effectiveBeatDistance(){
     return beatDistancePx * speedMod;
 }
 
-async function start_audio(startTime){
+export async function startAudio(startTime){
     if (audio != null){
         bpm = parseInt(document.getElementById("bpmInput").value);
         beatSeconds = bpm / 60;
         startTime = startTime / beatSeconds; //we're taking start time as number of beats, but we want number of seconds
+        lastStartTime = startTime;
 
-        //const audioContext = new AudioContext();
         audioContext = new AudioContext();
 
-        buffer = await audioContext.decodeAudioData(await audio.arrayBuffer());
+        let buffer = await audioContext.decodeAudioData(await audio.arrayBuffer());
         
         audioEndpoint = audioContext.createBufferSource();
         audioEndpoint.buffer = buffer;
         audioEndpoint.connect(audioContext.destination);
-    
-        lastStartTime = startTime + baseAudioOffset();
 
         //this event fires when the playback is stopped by stop() too
         audioEndpoint.addEventListener("ended", (event) => {
@@ -87,13 +81,13 @@ async function start_audio(startTime){
             console.log("Start: " + audio.name);
         }
 
-        //yes, this is actually the only thing that seems to work
+        //yes, this is actually the only way i've found that works 
         while (audioContext.currentTime == 0);
         startOffset = audioContext.currentTime;
     }
 }
 
-function stop(){
+export function stopAudio(){
     audioEndpoint.stop();
     playing = false;
 }
