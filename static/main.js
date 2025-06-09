@@ -1,5 +1,6 @@
 import { drawLane, updateViewportDimensions } from "./graphics.js";
-import { playing, audioContext, startOffset, bpm, lastStartTime } from "./script.js";
+import { playing, audioContext, startOffset, bpm, lastStartTime } from "./audio.js";
+import { APISession, uploadChart, processChart } from "./chart.js";
 
 console.log("Main loaded");
 
@@ -24,14 +25,12 @@ export function step(dt){
         if (boop){
             if (Math.floor(beatsElapsed) - Math.floor(lastBeats) > 0){
                 boopContext = new AudioContext();
-                clapsound = new OscillatorNode(boopContext, { frequency: 659, type:"square"});
+                clapsound = new OscillatorNode(boopContext, { frequency: parseInt(document.getElementById("boopfreq").value), type:"square"});
 
                 let gain = new GainNode(boopContext, {gain: 0.08});
                 gain.connect(boopContext.destination);
 
                 clapsound.connect(gain);
-
-                console.log("boop!");
                 clapsound.start();
                 clapsound.stop(0.07);
             }

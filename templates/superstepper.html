@@ -2,10 +2,14 @@
 <head>
     <script type="module">
         import { start } from "../static/main.js";
-        import { playing, uploadAudio, uploadChart, processChart, startAudio, stopAudio } from "../static/script.js";
+        import { playing, uploadAudio, startAudio, stopAudio } from "../static/audio.js";
+        import { uploadChart, processChart} from "../static/chart.js";
 
         document.querySelector("#button_play").addEventListener("click", (event) => { startAudio(document.getElementById("startTime").value)});
         document.querySelector("#button_stop").addEventListener("click", (event) => { stopAudio() });
+
+        document.getElementById("audio_upload").addEventListener("change", uploadAudio);
+        document.getElementById("chart_upload").addEventListener("change", uploadChart);
 
         start(document.getElementById("lane").getContext("2d"));
     </script>
@@ -32,7 +36,7 @@
             </form>
             
             <input type="button" value="Play" id="button_play"/>
-            <input type="button" value="Stop" id="button_stop" onclick="stop()"/>
+            <input type="button" value="Stop" id="button_stop"/>
             
             <div>
                 <input type="number" value="0" id="startTime" /> 
@@ -41,6 +45,16 @@
             <div>
                 <input type="number" value="120" id="bpmInput" /> 
                 BPM
+            </div>
+            <hr>
+            <div>
+                <input type="number" value="573" id="boopfreq" /> 
+                Boop frequency 
+            </div>
+            
+            <div>
+                <input type="number" value="573" id="port" /> 
+                API Port
             </div>
         </div>
         <div id="lane_area">

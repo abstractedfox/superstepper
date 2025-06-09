@@ -13,19 +13,9 @@ export let lastStartTime = 0; //start time used for the most recent playback, us
 
 let debug = false;
 
-document.getElementById("audio_upload").addEventListener("change", uploadAudio);
-document.getElementById("chart_upload").addEventListener("change", uploadChart);
-
 export function uploadAudio(){
     console.log(document.getElementById("audio_upload"));
     audio = document.getElementById("audio_upload").files[0];
-}
-
-export function uploadChart(){
-    console.log(document.getElementById("chart_upload"));
-    chartRawFile = document.getElementById("chart_upload").files[0];
-    console.log(chartRawFile.text());
-    processChart();
 }
 
 //we should be able to either nuke or otherwise rewrite this
