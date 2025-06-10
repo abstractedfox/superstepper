@@ -1,11 +1,30 @@
+//untested
 export class APISession{
-    constructor(port){
+    constructor(port, filename){
         this.port = port;
+        this.ID = null;
+        
+        let initResponse = this.request("init", filename = filename);
+        this.ID = initResponse["head"]["id"];
     }
 
-    async request(functionName, data = {}){
-        newRequest = {"head": {"function": functionName}, "data": data};
-   
+    async request(functionName, changes = [], data = {}){
+        newRequest = {"head": {"function": functionName}, "data": data, filename = null};
+  
+        if (functionName != "init"){
+            newRequest["head"]["id"] = this.ID;
+        }
+
+        switch(functionName){
+            case "init":
+                data["filename"] = filename;
+
+            case "update_chart":
+                data["changes"] = changes;
+            
+            default:
+                throw new Error("Invalid function " + functionName);
+        }
 
 
         let response = await fetch("/api", {
