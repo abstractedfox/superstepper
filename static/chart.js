@@ -8,8 +8,8 @@ export class APISession{
         this.ID = initResponse["head"]["id"];
     }
 
-    async request(functionName, changes = [], data = {}){
-        newRequest = {"head": {"function": functionName}, "data": data, filename = null};
+    async request(functionName, changes = [], data = {}, filename = null){
+        newRequest = {"head": {"function": functionName}, "data": data};
   
         if (functionName != "init"){
             newRequest["head"]["id"] = this.ID;
