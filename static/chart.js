@@ -1,33 +1,52 @@
-//untested
 export class APISession{
-    constructor(port, filename){
+    constructor(port, chartFilename){
         this.port = port;
         this.ID = null;
         
-        let initResponse = this.request("init", filename = filename);
-        this.ID = initResponse["head"]["id"];
+        let initResponse = this.request({functionName: "init", filename: chartFilename});
+        initResponse.then((response) => {
+            this.ID = response["head"]["id"];
+        });
+
     }
 
-    async request(functionName, changes = [], data = {}, filename = null){
-        newRequest = {"head": {"function": functionName}, "data": data};
-  
+    async request({functionName = "", changes = [], data = {}, filename = null}){
+        let newRequest = {"head": {"function": functionName}, "data": data};
         if (functionName != "init"){
             newRequest["head"]["id"] = this.ID;
         }
 
         switch(functionName){
             case "init":
-                data["filename"] = filename;
+                newRequest["data"]["filename"] = filename;
+
+            case "save":
+                break
+
+            case "close_sesion":
+                break
 
             case "update_chart":
-                data["changes"] = changes;
-            
+                newRequest["data"]["changes"] = changes;
+
+            case "get_steps":
+                break
+
+            case "get_bpms":
+                break
+
+            case "get_measures":
+                break
+
+            case "introspect_has_session":
+                break
+
+
             default:
                 throw new Error("Invalid function " + functionName);
         }
-
-
-        let response = await fetch("/api", {
+        
+        let response = await fetch(`http://127.0.0.1:${this.port}/api`, {
             body: JSON.stringify(newRequest),
             method: "POST",
             headers: {
