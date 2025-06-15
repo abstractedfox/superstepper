@@ -6,7 +6,6 @@ let dimensions = {"lane_w": 600};
 addEventListener("resize", (event) => { 
     viewport_x = window.innerWidth; 
     viewport_y = window.innerHeight; 
-    if (debug) console.log("viewport is " + viewport_x + " " + viewport_y)
 });
 
 export function updateViewportDimensions(graphicsContext){
