@@ -1,16 +1,18 @@
+let _sessions = {};
+
 export class APISession{
-    constructor(port, chartFilename){
+    constructor(port, chartFilename, rawData = null){
         this.port = port;
         this.ID = null;
         
-        let initResponse = this.request({functionName: "init", filename: chartFilename});
+        let initResponse = this.request({functionName: "init", filename: chartFilename, raw_chart: rawData});
         initResponse.then((response) => {
             this.ID = response["head"]["id"];
         });
 
     }
 
-    async request({functionName = "", changes = [], data = {}, filename = null}){
+    async request({functionName = "", changes = [], data = {}, filename = null, raw_chart = null}){
         let newRequest = {"head": {"function": functionName}, "data": data};
         if (functionName != "init"){
             newRequest["head"]["id"] = this.ID;
@@ -19,6 +21,9 @@ export class APISession{
         switch(functionName){
             case "init":
                 newRequest["data"]["filename"] = filename;
+                if (raw_chart != null){
+                    newRequest["data"]["raw_chart"] = raw_chart;
+                }
 
             case "save":
                 break
