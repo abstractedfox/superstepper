@@ -17,6 +17,8 @@ let beatsElapsed = 0;
 let lastBeats = 0;
 let timestamp = 0; //fine position in the song
 
+let currentSession = null;
+
 export function step(dt){
     if (playing){
         timestamp = lastStartTime + audioContext.currentTime - audioContext.outputLatency - startOffset;
@@ -51,6 +53,10 @@ export function step(dt){
         graphicsContext.fillText("beat:" + beatsElapsed, 0, 40);
     }
     requestAnimationFrame(step);
+}
+
+export function setCurrentSession(sessionID){
+    currentSession = sessionID;
 }
 
 export function start(canvasContext){
