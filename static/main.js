@@ -1,6 +1,6 @@
-import { drawLane, updateViewportDimensions } from "./graphics.js";
+import { drawLane, updateViewportDimensions, updateLane } from "./graphics.js";
 import { playing, audioContext, startOffset, bpm, lastStartTime } from "./audio.js";
-import { APISession, uploadChart, processChart } from "./chart.js";
+import { APISession, uploadChart, processChart, getSession } from "./chart.js";
 
 console.log("Main loaded");
 
@@ -42,7 +42,13 @@ export function step(dt){
     }
 
     updateViewportDimensions(graphicsContext);
-    drawLane("lane", graphicsContext);
+    if (currentSession == null){
+        updateLane(graphicsContext, null, document.getElementById("current_tick").value, 1);
+    }
+    else{
+        updateLane(graphicsContext, getSession(currentSession).notes_cache, parseInt(document.getElementById("current_tick").value), 1);
+    }
+    //drawLane(graphicsContext);
 
     if (debug){
         graphicsContext.fillStyle = "red";
