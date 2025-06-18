@@ -13,24 +13,12 @@ export let lastStartTime = 0; //start time used for the most recent playback, us
 
 let debug = false;
 
+
 export function uploadAudio(){
     console.log(document.getElementById("audio_upload"));
     audio = document.getElementById("audio_upload").files[0];
 }
 
-//we should be able to either nuke or otherwise rewrite this
-export async function processChart(){
-    if (chartRawFile != null){
-        const parser = new DOMParser();
-        const parsed = parser.parseFromString(await chartRawFile.text(), "application/xml");
-        
-        //boilerplate, to see how this works
-        console.log("parsed:", parsed);
-        console.log(parsed.children[0].children[0]);
-        console.log(parsed.childNodes);
-        console.log(parsed.childNodes[0].childNodes[2]);
-    }
-}
 
 function baseAudioOffset(){
     if (audioContext != null){
@@ -38,9 +26,6 @@ function baseAudioOffset(){
     }
 }
 
-function effectiveBeatDistance(){
-    return beatDistancePx * speedMod;
-}
 
 export async function startAudio(startTime){
     if (audio != null){
@@ -77,18 +62,8 @@ export async function startAudio(startTime){
     }
 }
 
+
 export function stopAudio(){
     audioEndpoint.stop();
     playing = false;
-}
-
-function beatAt(time){
-    return time * beatSeconds;
-}
-
-class LaneObject{
-    constructor(h, w){
-        this.h = h
-        this.w = w
-    }
 }

@@ -3,7 +3,7 @@
     <script type="module">
         import { start } from "../static/main.js";
         import { playing, uploadAudio, startAudio, stopAudio } from "../static/audio.js";
-        import { uploadChart, processChart} from "../static/chart.js";
+        import { uploadChart } from "../static/chart.js";
 
         document.querySelector("#button_play").addEventListener("click", (event) => { startAudio(document.getElementById("startTime").value)});
         document.querySelector("#button_stop").addEventListener("click", (event) => { stopAudio() });
@@ -21,7 +21,6 @@
         #container{
             display:flex;
         }
-        
     </style>
 </head>
 <body>

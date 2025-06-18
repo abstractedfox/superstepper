@@ -2,9 +2,11 @@ import { setCurrentSession } from "./main.js";
 
 let _sessions = {};
 
+
 export function getSession(sessionID){
     return _sessions[sessionID];
 }
+
 
 export class APISession{
     constructor(port, chartFilename, rawData = null){
@@ -22,9 +24,11 @@ export class APISession{
         });
     }
 
+
     async isInitialized_awaitable(){
         return this.initResponse;
     }
+
 
     async request({functionName = "", changes = [], data = {}, filename = null, raw_chart = null}){
         let newRequest = {"head": {"function": functionName}, "data": data};
@@ -62,7 +66,6 @@ export class APISession{
             case "introspect_has_session":
                 break
 
-
             default:
                 throw new Error("Invalid function " + functionName);
         }
@@ -77,7 +80,8 @@ export class APISession{
 
         return response.json();
     }
-    
+
+
     async updateCaches({steps = false, bpms = false, measures = false}){
         if (steps){
             this.notes_cache = (await this.request({functionName: "get_steps"}))["data"]["steps"]; 
@@ -90,6 +94,7 @@ export class APISession{
         }
     }
 }
+
 
 export async function uploadChart(){
     let chartRawFile = document.getElementById("chart_upload").files[0];
@@ -105,16 +110,3 @@ export async function uploadChart(){
     });
 }
 
-//we should be able to either nuke or otherwise rewrite this
-export async function processChart(){
-    if (chartRawFile != null){
-        const parser = new DOMParser();
-        const parsed = parser.parseFromString(await chartRawFile.text(), "application/xml");
-
-        //boilerplate, to see how this works
-        console.log("parsed:", parsed);
-        console.log(parsed.children[0].children[0]);
-        console.log(parsed.childNodes);
-        console.log(parsed.childNodes[0].childNodes[2]);
-    }
-}

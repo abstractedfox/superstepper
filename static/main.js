@@ -1,8 +1,6 @@
 import { drawLane, updateViewportDimensions, updateLane } from "./graphics.js";
 import { playing, audioContext, startOffset, bpm, lastStartTime } from "./audio.js";
-import { APISession, uploadChart, processChart, getSession } from "./chart.js";
-
-console.log("Main loaded");
+import { APISession, uploadChart, getSession } from "./chart.js";
 
 let TIME_UNIT = 480;
 
@@ -25,6 +23,7 @@ let lasttimeval = 0;
 //TODO: rename this to something that doesn't sound like a chart element
 export function step(timeval){
     let dt = timeval - lasttimeval;
+    
     if (playing){
         timestamp = lastStartTime + audioContext.currentTime - audioContext.outputLatency - startOffset;
         beatsElapsed = timestamp * (bpm/60);
@@ -44,10 +43,10 @@ export function step(timeval){
             }
             lastBeats = beatsElapsed;
         }
-
     }
 
     updateViewportDimensions(graphicsContext);
+    
     if (currentSession == null){
         updateLane(graphicsContext, null, document.getElementById("current_tick").value, 1);
     }
@@ -63,13 +62,16 @@ export function step(timeval){
         graphicsContext.fillText("beat: " + beatsElapsed, 0, 40);
         graphicsContext.fillText("fps: " + Math.floor(1000/dt), 0, 60);
     }
+    
     requestAnimationFrame(step);
     lasttimeval = timeval;
 }
 
+
 export function setCurrentSession(sessionID){
     currentSession = sessionID;
 }
+
 
 export function start(canvasContext){
     graphicsContext = canvasContext;
