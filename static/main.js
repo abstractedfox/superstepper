@@ -28,6 +28,7 @@ export function step(timeval){
     if (playing){
         timestamp = lastStartTime + audioContext.currentTime - audioContext.outputLatency - startOffset;
         beatsElapsed = timestamp * (bpm/60);
+        document.getElementById("current_tick").value = Math.floor(beatsElapsed * TIME_UNIT);
 
         if (boop){
             if (Math.floor(beatsElapsed) - Math.floor(lastBeats) > 0){
