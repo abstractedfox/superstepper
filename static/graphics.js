@@ -76,7 +76,7 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     
     let height = 40 * tickHeight;
     
-    if (!(ypos_start - height > -1 && ypos_start - height < canvas_x)){
+    if (!(ypos_start - height > -1 && ypos_start - height < canvas_y)){
         return;
     }
 
