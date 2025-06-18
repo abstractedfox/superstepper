@@ -1,8 +1,8 @@
-import { drawLane, updateViewportDimensions } from "./graphics.js";
+import { drawLane, updateViewportDimensions, updateLane } from "./graphics.js";
 import { playing, audioContext, startOffset, bpm, lastStartTime } from "./audio.js";
-import { APISession, uploadChart, processChart } from "./chart.js";
+import { APISession, uploadChart, getSession } from "./chart.js";
 
-console.log("Main loaded");
+let TIME_UNIT = 480;
 
 let graphicsContext = null;
 
@@ -17,10 +17,17 @@ let beatsElapsed = 0;
 let lastBeats = 0;
 let timestamp = 0; //fine position in the song
 
-export function step(dt){
+let currentSession = null;
+let lasttimeval = 0;
+
+//TODO: rename this to something that doesn't sound like a chart element
+export function step(timeval){
+    let dt = timeval - lasttimeval;
+    
     if (playing){
         timestamp = lastStartTime + audioContext.currentTime - audioContext.outputLatency - startOffset;
         beatsElapsed = timestamp * (bpm/60);
+        document.getElementById("current_tick").value = Math.floor(beatsElapsed * TIME_UNIT);
 
         if (boop){
             if (Math.floor(beatsElapsed) - Math.floor(lastBeats) > 0){
@@ -36,22 +43,35 @@ export function step(dt){
             }
             lastBeats = beatsElapsed;
         }
-
     }
 
     updateViewportDimensions(graphicsContext);
-    drawLane("lane", graphicsContext);
+    
+    if (currentSession == null){
+        updateLane(graphicsContext, null, document.getElementById("current_tick").value, 1);
+    }
+    else{
+        updateLane(graphicsContext, getSession(currentSession).notes_cache, parseInt(document.getElementById("current_tick").value), 1);
+    }
 
     if (debug){
         graphicsContext.fillStyle = "red";
         graphicsContext.font = "20px Arial";
 
-        //testing new
-        graphicsContext.fillText("timestamp" + timestamp, 0, 20);
-        graphicsContext.fillText("beat:" + beatsElapsed, 0, 40);
+        graphicsContext.fillText("timestamp: " + timestamp, 0, 20);
+        graphicsContext.fillText("beat: " + beatsElapsed, 0, 40);
+        graphicsContext.fillText("fps: " + Math.floor(1000/dt), 0, 60);
     }
+    
     requestAnimationFrame(step);
+    lasttimeval = timeval;
 }
+
+
+export function setCurrentSession(sessionID){
+    currentSession = sessionID;
+}
+
 
 export function start(canvasContext){
     graphicsContext = canvasContext;
