@@ -4,7 +4,7 @@ let viewport_y = window.innerHeight;
 let canvas_x = document.getElementById("lane").width;
 let canvas_y = viewport_y;
 
-let colors = {"lane_bg": "#eeeeee", "lane_pulse": "#eeeeff", "hantei": "#ff0000", "line": "#000000", "step_l": "#cc0000", "step_r": "#0000cc"};
+let colors = {"lane_bg": "#eeeeee", "lane_pulse": "#eeeeff", "hantei": "#ff0000", "line": "#000000", "step_l": "#cc0000", "step_r": "#0000cc", "step_down": "green", "step_jump": "purple"};
 let dimensions = {"lane_w": canvas_x, "judgement_line_base": 0, "judgement_line_height_from_bottom": 40};
 dimensions["judgement_line_base"] = viewport_y - dimensions["judgement_line_height_from_bottom"];
 
@@ -29,6 +29,7 @@ function scrollPosition(tickHeight, target_y, noteTick, currentTick){
 
 //Mapping of an array of notes to a dict
 //Use when fast reads are important. update() should be called prior to usage (and before fast reads are needed) 
+//Actually, I am less certain if we need this 
 export class notedict{
     constructor(notes){
         this.notes = notes;
@@ -50,13 +51,45 @@ export class notedict{
     }
 }
 
-export class note{
-    constructor(notedict){
+//Optimization class for rendering steps. Call update() when the dimensions of
+//the viewport or the note scaling changes. Call draw() when only the y offset
+//has changed (ie during playback)
+class GraphicalStep{
+    constructor(notedict, viewport_width, tickHeight, tick){
         this.notedict = notedict;
+        this.update(viewport_width, tickHeight, tick);
+    }
+
+    update(viewport_width, tickHeight, tick){
+        let color = null;
+
+        if (this.notedict["kind"] == 1){
+            this.color = colors["step_l"];
+        }
+        if (this.notedict["kind"] == 2){
+            this.color = colors["step_r"];
+        }
+        if (this.notedict["kind"] == 3){
+            this.color = colors["step_down"];
+        }
+        if (this.notedict["kind"] == 4){
+            this.color = colors["step_jump"];
+        }
+
+        this.height = 40 * tickHeight;
+        this.width = (this.notedict["right_pos"] - this.notedict["left_pos"]) * (canvas_x / 65536);
+        this.xPos = this.notedict["left_pos"] * (canvas_x / 65536);
+    }
+
+    draw(graphicsContext, tick){
+        let ypos_start = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["start_tick"], tick);
+        let ypos_end = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["end_tick"], tick);
+
+        graphicsContext.fillStyle = this.color;
+        graphicsContext.fillRect(xPos, ypos_start - height, width, height); 
     }
 }
 
-//TODO: pass a notedict with this and use it to memoize the logic (also add a spot for that in notedict)
 function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     let ypos_start = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["start_tick"], tick);
     let ypos_end = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["end_tick"], tick);
@@ -68,14 +101,19 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     if (notedict["kind"] == 2){
         color = colors["step_r"];
     }
+    if (notedict["kind"] == 3){
+        //down
+        color = colors["step_down"];
+    }
+    if (notedict["kind"] == 4){
+        color = colors["step_jump"];
+    }
 
     let height = 40 * tickHeight;
     let width = (notedict["right_pos"] - notedict["left_pos"]) * (canvas_x / 65536);
     let xPos = notedict["left_pos"] * (canvas_x / 65536);
 
-    if (ypos_start - height > -1 && ypos_start - height < canvas_x){
-    }
-    else{
+    if (!(ypos_start - height > -1 && ypos_start - height < canvas_x)){
         return;
     }
     graphicsContext.fillStyle = color;
