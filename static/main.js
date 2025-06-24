@@ -1,6 +1,7 @@
 import { drawLane, updateViewportDimensions, updateLane } from "./graphics.js";
 import { playing, audioContext, startOffset, bpm, lastStartTime } from "./audio.js";
 import { APISession, uploadChart, getSession } from "./chart.js";
+"use strict";
 
 let TIME_UNIT = 480;
 
