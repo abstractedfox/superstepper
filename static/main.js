@@ -69,6 +69,9 @@ export function step(timeval){
 
 
 export function setCurrentSession(sessionID){
+    if (sessionID == null){
+        sessionID = document.getElementById("sessionDropdown").value.split(" ").at(-1);
+    }
     currentSession = sessionID;
 }
 
