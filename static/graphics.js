@@ -73,10 +73,13 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     let ypos_start = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["start_tick"], tick);
     let ypos_end = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["end_tick"], tick);
     let color = null;
-    
+    let xscale = (canvas_x / 65536);
+
+    //the visual height of the note
     let height = 40 * tickHeight;
     
-    if (!(ypos_start - height > -1 && ypos_start - height < canvas_y)){
+    if (!(ypos_start - height > -1 && ypos_start - height < canvas_y 
+        || (ypos_end < canvas_y && ypos_end > -1))){
         return;
     }
 
@@ -93,8 +96,43 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
         color = colors["step_jump"];
     }
 
-    let width = (notedict["right_pos"] - notedict["left_pos"]) * (canvas_x / 65536);
-    let xPos = notedict["left_pos"] * (canvas_x / 65536);
+    let width = (notedict["right_pos"] - notedict["left_pos"]) * xscale;
+    let xPos = notedict["left_pos"] * xscale;
+
+    //Draw holds
+    //This assumes long_points are sorted by tick ascending
+    for (let i = 0; i < notedict["long_point"].length; i++){
+        let ypos_point = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i]["tick"], tick);
+        
+        graphicsContext.fillStyle = color;
+        if (i != 0){
+            let last_ypos_point = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i-1]["tick"], tick);
+            let ypos_lastPoint = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i-1]["tick"], tick);
+            
+            graphicsContext.beginPath();
+            if (notedict["long_point"][i-1]["left_end_pos"] != null){
+                graphicsContext.moveTo(notedict["long_point"][i-1]["left_end_pos"] * xscale, ypos_lastPoint);
+                graphicsContext.lineTo(notedict["long_point"][i-1]["right_end_pos"] * xscale, ypos_lastPoint);
+            }
+            else{
+                graphicsContext.moveTo(notedict["long_point"][i-1]["left_pos"] * xscale, ypos_lastPoint);
+                graphicsContext.lineTo(notedict["long_point"][i-1]["right_pos"] * xscale, ypos_lastPoint);
+            }
+        }
+        else{
+            let ypos_lastPoint = ypos_start;
+            graphicsContext.beginPath();
+            graphicsContext.moveTo(notedict["left_pos"] * xscale, ypos_start);
+            graphicsContext.lineTo(notedict["right_pos"] * xscale, ypos_start);
+        
+        }
+        
+        graphicsContext.lineTo(notedict["long_point"][i]["right_pos"] * xscale, ypos_point);
+        graphicsContext.lineTo(notedict["long_point"][i]["left_pos"] * xscale, ypos_point);
+        
+        graphicsContext.closePath();
+        graphicsContext.fill();
+    }
 
     graphicsContext.fillStyle = color;
     graphicsContext.fillRect(xPos, ypos_start - height, width, height); 

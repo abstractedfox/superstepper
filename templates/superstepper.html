@@ -1,7 +1,7 @@
 <html>
 <head>
     <script type="module">
-        import { start } from "../static/main.js";
+        import { start, setCurrentSession } from "../static/main.js";
         import { playing, uploadAudio, startAudio, stopAudio } from "../static/audio.js";
         import { uploadChart } from "../static/chart.js";
 
@@ -10,6 +10,8 @@
 
         document.getElementById("audio_upload").addEventListener("change", uploadAudio);
         document.getElementById("chart_upload").addEventListener("change", uploadChart);
+
+        document.getElementById("sessionDropdown").onchange = () => { setCurrentSession(null); };
 
         start(document.getElementById("lane").getContext("2d"));
     </script>
@@ -25,6 +27,9 @@
 </head>
 <body>
     <div id="container">
+        <div id="lane_area">
+            <canvas id="lane" width="640" height = "480"></canvas>
+        </div>
         <div id="controls">
             <form id="upload">
                 <div>Audio Upload</div>
@@ -63,10 +68,12 @@
                 <input type="number" value="5730" id="port" /> 
                 API Port
             </div>
+            <div>
+                <select id="sessionDropdown">
+                </select>
+                Chart session
+            </div>
         </div>
-        <div id="lane_area">
-            <canvas id="lane" width="640" height = "480"></canvas>
-        </div>        
     </div>
 </body>
 </html>

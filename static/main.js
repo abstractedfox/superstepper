@@ -1,6 +1,7 @@
 import { drawLane, updateViewportDimensions, updateLane } from "./graphics.js";
 import { playing, audioContext, startOffset, bpm, lastStartTime } from "./audio.js";
 import { APISession, uploadChart, getSession } from "./chart.js";
+"use strict";
 
 let TIME_UNIT = 480;
 
@@ -69,6 +70,9 @@ export function step(timeval){
 
 
 export function setCurrentSession(sessionID){
+    if (sessionID == null){
+        sessionID = document.getElementById("sessionDropdown").value.split(" ").at(-1);
+    }
     currentSession = sessionID;
 }
 

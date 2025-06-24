@@ -17,7 +17,8 @@ export class APISession{
         this.notes_cache = null;
         this.measures_cache = null;
         this.bpms_cache = null;
-
+        this.filename = chartFilename;
+    
         this.initResponse = this.request({functionName: "init", filename: chartFilename, raw_chart: rawData});
         this.initResponse.then((response) => {
             this.ID = response["head"]["id"];
@@ -100,13 +101,22 @@ export async function uploadChart(){
     let chartRawFile = document.getElementById("chart_upload").files[0];
     
     chartRawFile.text().then(async (file) => {
-        let session = new APISession(document.getElementById("port").value, document.getElementById("chart_upload").value, file);
+        let session = new APISession(document.getElementById("port").value, document.getElementById("chart_upload").files[0].name, file);
         await session.updateCaches({steps: true, bpms: true, measures: true}); 
+        
         console.log(session.notes_cache);
         console.log(session.bpms_cache);
         console.log(session.measures_cache);
+        
         _sessions[session.ID] = session;
         setCurrentSession(session.ID);
+        
+        //add it to the dropdown on the page
+        let dropdownOption = document.createElement("option");
+        dropdownOption.text = session.filename + " " + session.ID;
+        let dropdownElement = document.getElementById("sessionDropdown");
+        dropdownElement.add(dropdownOption);
+        dropdownElement.selectedIndex = dropdownElement.options.length - 1;
     });
 }
 
