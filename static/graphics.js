@@ -4,7 +4,7 @@ let viewport_y = window.innerHeight;
 let canvas_x = document.getElementById("lane").width;
 let canvas_y = viewport_y;
 
-let colors = {"lane_bg": "#eeeeee", "lane_pulse": "#eeeeff", "hantei": "#ff0000", "line": "#000000", "step_l": "#cc0000", "step_r": "#0000cc", "step_down": "green", "step_jump": "purple"};
+let colors = {"lane_bg": "#eeeeee", "lane_pulse": "#eeeeff", "hantei": "#ff0000", "line": "#000000", "step_l": "#cc0000", "step_r": "#0000cc", "swipe_l": "#990000", "swipe_r": "000099", "step_down": "yellow", "step_jump": "000055"};
 let dimensions = {"lane_w": canvas_x, "judgement_line_base": 0, "judgement_line_height_from_bottom": 40};
 dimensions["judgement_line_base"] = viewport_y - dimensions["judgement_line_height_from_bottom"];
 
@@ -113,6 +113,22 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
             if (notedict["long_point"][i-1]["left_end_pos"] != null){
                 graphicsContext.moveTo(notedict["long_point"][i-1]["left_end_pos"] * xscale, ypos_lastPoint);
                 graphicsContext.lineTo(notedict["long_point"][i-1]["right_end_pos"] * xscale, ypos_lastPoint);
+                
+                //draw the 'swipe'
+                //TODO: we're leaving off on this because implementing some
+                    //other things would make it much nicer to finish this part.
+                    //however, when that time comes, figure out why this doesn't work.
+                let swipecolor = null;
+                if (color == colors["step_l"]){
+                    swipecolor = colors["swipe_l"];
+                }
+                else {
+                    swipecolor = colors["swipe_r"];
+                }
+                graphicsContext.fillStyle = swipecolor;
+                graphicsContext.fillRect(notedict["long_point"][i-1]["left_end_pos"], ypos_point - height, notedict["long_point"][i-1]["right_pos"] - notedict["long_point"][i-1]["left_end_pos"], height);
+                
+                graphicsContext.fillStyle = color;
             }
             else{
                 graphicsContext.moveTo(notedict["long_point"][i-1]["left_pos"] * xscale, ypos_lastPoint);
@@ -124,7 +140,6 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
             graphicsContext.beginPath();
             graphicsContext.moveTo(notedict["left_pos"] * xscale, ypos_start);
             graphicsContext.lineTo(notedict["right_pos"] * xscale, ypos_start);
-        
         }
         
         graphicsContext.lineTo(notedict["long_point"][i]["right_pos"] * xscale, ypos_point);
