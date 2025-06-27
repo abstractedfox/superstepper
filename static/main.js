@@ -3,7 +3,7 @@ import { playing, audioContext, startOffset, bpm, lastStartTime } from "./audio.
 import { APISession, uploadChart, getSession } from "./chart.js";
 "use strict";
 
-let TIME_UNIT = 480;
+export let TIME_UNIT = 480;
 
 let graphicsContext = null;
 
@@ -58,6 +58,7 @@ export function step(timeval){
     if (debug){
         graphicsContext.fillStyle = "red";
         graphicsContext.font = "20px Arial";
+        graphicsContext.textAlign = "left";
 
         graphicsContext.fillText("timestamp: " + timestamp, 0, 20);
         graphicsContext.fillText("beat: " + beatsElapsed, 0, 40);
