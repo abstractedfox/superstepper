@@ -110,30 +110,8 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
             let ypos_lastPoint = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i-1]["tick"], tick);
             
             graphicsContext.beginPath();
-            if (notedict["long_point"][i-1]["left_end_pos"] != null){
-                graphicsContext.moveTo(notedict["long_point"][i-1]["left_end_pos"] * xscale, ypos_lastPoint);
-                graphicsContext.lineTo(notedict["long_point"][i-1]["right_end_pos"] * xscale, ypos_lastPoint);
-                
-                //draw the 'swipe'
-                //TODO: we're leaving off on this because implementing some
-                    //other things would make it much nicer to finish this part.
-                    //however, when that time comes, figure out why this doesn't work.
-                let swipecolor = null;
-                if (color == colors["step_l"]){
-                    swipecolor = colors["swipe_l"];
-                }
-                else {
-                    swipecolor = colors["swipe_r"];
-                }
-                graphicsContext.fillStyle = swipecolor;
-                graphicsContext.fillRect(notedict["long_point"][i-1]["left_end_pos"], ypos_point - height, notedict["long_point"][i-1]["right_pos"] - notedict["long_point"][i-1]["left_end_pos"], height);
-                
-                graphicsContext.fillStyle = color;
-            }
-            else{
                 graphicsContext.moveTo(notedict["long_point"][i-1]["left_pos"] * xscale, ypos_lastPoint);
                 graphicsContext.lineTo(notedict["long_point"][i-1]["right_pos"] * xscale, ypos_lastPoint);
-            }
         }
         else{
             let ypos_lastPoint = ypos_start;
