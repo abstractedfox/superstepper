@@ -1,12 +1,16 @@
+import { TIME_UNIT } from "./main.js"; 
+
 let viewport_x = window.innerWidth; 
 let viewport_y = window.innerHeight; 
 
 let canvas_x = document.getElementById("lane").width;
 let canvas_y = viewport_y;
 
-let colors = {"lane_bg": "#eeeeee", "lane_pulse": "#eeeeff", "hantei": "#ff0000", "line": "#000000", "step_l": "#cc0000", "step_r": "#0000cc", "swipe_l": "#990000", "swipe_r": "000099", "step_down": "yellow", "step_jump": "#00ccff"};
+let colors = {"lane_bg": "#eeeeee", "lane_pulse": "#eeeeff", "hantei": "#ff0000", "line": "#000000", "step_l": "#cc0000", "step_r": "#0000cc", "swipe_l": "#990000", "swipe_r": "000099", "step_down": "yellow", "step_jump": "#00ccff", "metatext": "black"};
 let dimensions = {"lane_w": canvas_x, "judgement_line_base": 0, "judgement_line_height_from_bottom": 40};
 dimensions["judgement_line_base"] = viewport_y - dimensions["judgement_line_height_from_bottom"];
+
+let showTicks = true
 
 addEventListener("resize", (event) => { 
     viewport_x = window.innerWidth; 
@@ -129,6 +133,12 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
 
     graphicsContext.fillStyle = color;
     graphicsContext.fillRect(xPos, ypos_start - height, width, height); 
+    
+    if (showTicks){
+        graphicsContext.fillStyle = colors["metatext"]; 
+        graphicsContext.textAlign = "center";
+        graphicsContext.fillText(notedict["start_tick"].toString(), xPos + (width/2), ypos_start);
+    }
 }
 
 
