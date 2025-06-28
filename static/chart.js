@@ -2,7 +2,6 @@ import { setCurrentSession } from "./main.js";
 
 let _sessions = {};
 
-
 export function getSession(sessionID){
     return _sessions[sessionID];
 }
@@ -119,4 +118,3 @@ export async function uploadChart(){
         dropdownElement.selectedIndex = dropdownElement.options.length - 1;
     });
 }
-
