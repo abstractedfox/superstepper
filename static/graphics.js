@@ -198,8 +198,12 @@ export function scrollHandler(event){
     if (invert){
         sign = 1;
     }
-    
-    let delta = document.getElementById("tick_height").value * event.deltaY * sign * multiplier;
-    
-    document.getElementById("current_tick").value = parseInt(document.getElementById("current_tick").value) + delta; 
+   
+    if (!event.ctrlKey){
+        let delta = document.getElementById("tick_height").value * event.deltaY * sign * multiplier;
+        document.getElementById("current_tick").value = parseInt(document.getElementById("current_tick").value) + delta; 
+    }
+    else{
+        document.getElementById("tick_height").value = Math.max(0.001, parseFloat(document.getElementById("tick_height").value) + 0.05 * (event.deltaY / 1000));
+    }
 }
