@@ -1,9 +1,10 @@
 <html>
 <head>
     <script type="module">
-        import { start, setCurrentSession, subscribers } from "../static/main.js";
+        import { start, setCurrentSession } from "../static/main.js";
         import { playing, uploadAudio, startAudio, stopAudio } from "../static/audio.js";
         import { uploadChart } from "../static/chart.js";
+        import { scrollHandler } from "../static/graphics.js";
 
         document.querySelector("#button_play").addEventListener("click", (event) => { startAudio(document.getElementById("startTime").value)});
         document.querySelector("#button_stop").addEventListener("click", (event) => { stopAudio() });
@@ -11,13 +12,11 @@
         document.getElementById("audio_upload").addEventListener("change", uploadAudio);
         document.getElementById("chart_upload").addEventListener("change", uploadChart);
         
-        for (const eventType of ["mousedown", "mouseup", "scroll", "mousemove"]){
+        for (const eventType of ["mousedown", "mouseup", "wheel", "mousemove"]){
             document.getElementById("lane").addEventListener(eventType, (event) => { 
                 //note that you probably want event.offsetX, event.offsetY when relevant
-                if (eventType in subscribers){
-                    for (func in subscribers[eventType]){
-                        func(event);
-                    }
+                if (eventType == "wheel"){
+                    scrollHandler(event);
                 }
             });
         }

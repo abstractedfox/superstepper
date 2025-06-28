@@ -21,14 +21,6 @@ let timestamp = 0; //fine position in the song
 let currentSession = null;
 let lasttimeval = 0;
 
-//Subscribers for mouse events
-export let subscribers = {};
-export function addSubscriber(callback, eventName){
-    if (!(eventName in subscribers)){
-        subscribers[eventName] = []
-    }
-    subscribers[eventName].push(callback);
-}
 
 //TODO: rename this to something that doesn't sound like a chart element
 export function step(timeval){
