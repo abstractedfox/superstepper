@@ -10,6 +10,17 @@
 
         document.getElementById("audio_upload").addEventListener("change", uploadAudio);
         document.getElementById("chart_upload").addEventListener("change", uploadChart);
+        
+        for (const eventType of ["mousedown", "mouseup", "mousewheel", "mousemove"]){
+            document.getElementById("lane").addEventListener(eventType, (event) => { 
+                //note that you probably want event.offsetX, event.offsetY when relevant
+                if (eventType in subscribers){
+                    for (func in subscribers[eventType]){
+                        func(event);
+                    }
+                }
+            });
+        }
 
         document.getElementById("sessionDropdown").onchange = () => { setCurrentSession(null); };
 
