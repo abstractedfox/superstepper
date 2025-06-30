@@ -6,7 +6,20 @@ let viewport_y = window.innerHeight;
 let canvas_x = document.getElementById("lane").width;
 let canvas_y = viewport_y;
 
-let colors = {"lane_bg": "#eeeeee", "lane_pulse": "#eeeeff", "hantei": "#ff0000", "line": "#000000", "step_l": "#cc0000", "step_r": "#0000cc", "swipe_l": "#990000", "swipe_r": "000099", "step_down": "yellow", "step_jump": "#00ccff", "metatext": "black"};
+let colors = {"lane_bg": "#eeeeee",
+                "lane_pulse": "#eeeeff", 
+                "hantei": "#ff0000",
+                "line": "#000000",
+                "step_l": "#cc0000",
+                "step_r": "#0000cc",
+                "swipe_l": "#990000",
+                "swipe_r": "#000099",
+                "hold_l": "#aa0000",
+                "hold_r": "#0000aa",
+                "step_down": "yellow",
+                "step_jump": "#00ccff",
+                "metatext": "black"
+            };
 let dimensions = {"lane_w": canvas_x, "judgement_line_base": 0, "judgement_line_height_from_bottom": 40};
 dimensions["judgement_line_base"] = viewport_y - dimensions["judgement_line_height_from_bottom"];
 
