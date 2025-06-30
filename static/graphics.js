@@ -191,3 +191,22 @@ export function drawLane(graphicsContext){
     graphicsContext.closePath();
 }
 
+
+export function scrollHandler(event){
+    //apparently, the 'wheel' event can be triggered by more than a scroll wheel, and can't be used to reliably determine scroll direction
+    //however, we are only targeting mouse and keyboard users. we'll say -deltaY is scrolling up and +deltaY is scrolling down by default
+    let invert = false;
+    let multiplier = 25;
+    let sign = -1;
+    if (invert){
+        sign = 1;
+    }
+   
+    if (!event.ctrlKey){
+        let delta = document.getElementById("tick_height").value * event.deltaY * sign * multiplier;
+        document.getElementById("current_tick").value = parseInt(document.getElementById("current_tick").value) + delta; 
+    }
+    else{
+        document.getElementById("tick_height").value = Math.max(0.001, parseFloat(document.getElementById("tick_height").value) + 0.05 * (event.deltaY / 1000));
+    }
+}

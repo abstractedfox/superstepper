@@ -4,12 +4,22 @@
         import { start, setCurrentSession } from "../static/main.js";
         import { playing, uploadAudio, startAudio, stopAudio } from "../static/audio.js";
         import { uploadChart } from "../static/chart.js";
+        import { scrollHandler } from "../static/graphics.js";
 
         document.querySelector("#button_play").addEventListener("click", (event) => { startAudio(document.getElementById("startTime").value)});
         document.querySelector("#button_stop").addEventListener("click", (event) => { stopAudio() });
 
         document.getElementById("audio_upload").addEventListener("change", uploadAudio);
         document.getElementById("chart_upload").addEventListener("change", uploadChart);
+        
+        for (const eventType of ["mousedown", "mouseup", "wheel", "mousemove"]){
+            document.getElementById("lane").addEventListener(eventType, (event) => { 
+                //note that you probably want event.offsetX, event.offsetY when relevant
+                if (eventType == "wheel"){
+                    scrollHandler(event);
+                }
+            });
+        }
 
         document.getElementById("sessionDropdown").onchange = () => { setCurrentSession(null); };
 
@@ -55,8 +65,8 @@
                 今Tick
             </div>
             <div>
-                <input type="number" value="1" id="tick_height" />
-                Tick height
+                <input type="number" value="0.1" id="tick_height" />
+                Tick height (zoom)
             </div>
             <hr>
             <div>
