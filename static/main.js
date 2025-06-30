@@ -1,4 +1,4 @@
-import { drawLane, updateViewportDimensions, updateLane } from "./graphics.js";
+import { drawLane, updateViewportDimensions, updateLane, tickAt, canvasXToLaneX } from "./graphics.js";
 import { playing, audioContext, startOffset, bpm, lastStartTime } from "./audio.js";
 import { APISession, uploadChart, getSession } from "./chart.js";
 "use strict";
@@ -82,4 +82,12 @@ export function setCurrentSession(sessionID){
 export function start(canvasContext){
     graphicsContext = canvasContext;
     step();
+}
+
+
+//Tick args are necessary for anything that needs to find notes by position
+export function clickHandler(event, currentTick, tickHeight){
+    let tick = tickAt(event.offsetX, event.offsetY, currentTick, tickHeight);
+    let x = canvasXToLaneX(event.offsetX);
+    console.log("Click at", x, tick);
 }

@@ -1,7 +1,8 @@
 <html>
 <head>
     <script type="module">
-        import { start, setCurrentSession } from "../static/main.js";
+        //TODO: put all the event handler imports in the same file
+        import { start, setCurrentSession, clickHandler } from "../static/main.js";
         import { playing, uploadAudio, startAudio, stopAudio } from "../static/audio.js";
         import { uploadChart } from "../static/chart.js";
         import { scrollHandler } from "../static/graphics.js";
@@ -17,6 +18,10 @@
                 //note that you probably want event.offsetX, event.offsetY when relevant
                 if (eventType == "wheel"){
                     scrollHandler(event);
+                }
+
+                if (eventType == "mousedown"){
+                    clickHandler(event, parseInt(document.getElementById("current_tick").value), parseFloat(document.getElementById("tick_height").value));
                 }
             });
         }
@@ -100,7 +105,6 @@
                     Start Tick
                 </div>
             </div>
-            After inspector
         </div>
     </div>
 </body>

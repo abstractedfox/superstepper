@@ -1,5 +1,7 @@
 import { TIME_UNIT } from "./main.js"; 
 
+const LANE_WIDTH = 65536;
+
 let viewport_x = window.innerWidth; 
 let viewport_y = window.innerHeight; 
 
@@ -37,14 +39,27 @@ addEventListener("resize", (event) => {
 
 //Get a note's y position relative to the current tick and scroll rate 
     //tickHeight = height, in pixels, of one tick
-    //target_y = the position of the judgement line 
+    //targetY = the position of the judgement line 
     //currentTick = the tick we are offsetting for 
-function scrollPosition(tickHeight, target_y, noteTick, currentTick){
-    let y = target_y - (noteTick - currentTick) * tickHeight; 
+function scrollPosition(tickHeight, targetY, noteTick, currentTick){
+    let y = targetY - (noteTick - currentTick) * tickHeight; 
     
     return y;
 }
 
+
+//For a given canvas coordinate pair, return a note at that location if it exists
+export function tickAt(canvasX, canvasY, currentTick, tickHeight){
+    //this is just the scrollPosition math backwards
+    let tick = (((canvasY - dimensions["judgement_line_base"]) / tickHeight) - currentTick) * -1;
+    return tick;
+}
+
+
+export function canvasXToLaneX(canvasXPos){
+    console.log({canvas_x, canvasXPos, LANE_WIDTH});
+    return (canvasXPos / canvas_x) * LANE_WIDTH;
+}
 
 //Optimization class for rendering steps. Call update() when the dimensions of
 //the viewport or the note scaling changes. Call draw() when only the y offset
@@ -72,8 +87,8 @@ class GraphicalStep{
         }
 
         this.height = 40 * tickHeight;
-        this.width = (this.notedict["right_pos"] - this.notedict["left_pos"]) * (canvas_x / 65536);
-        this.xPos = this.notedict["left_pos"] * (canvas_x / 65536);
+        this.width = (this.notedict["right_pos"] - this.notedict["left_pos"]) * (canvas_x / LANE_WIDTH);
+        this.xPos = this.notedict["left_pos"] * (canvas_x / LANE_WIDTH);
     }
 
     draw(graphicsContext, tick){
@@ -228,4 +243,8 @@ export function scrollHandler(event){
     else{
         document.getElementById("tick_height").value = Math.max(0.001, parseFloat(document.getElementById("tick_height").value) + 0.05 * (event.deltaY / 1000));
     }
+}
+
+export function clickHandler(event, currentTick, tickHeight){
+    tickAt(event.offsetX, event.offsetY, dimensions["judgement_line_base"], currentTick, tickHeight);
 }
