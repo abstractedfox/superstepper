@@ -14,8 +14,8 @@ let colors = {"lane_bg": "#eeeeee",
                 "step_r": "#0000cc",
                 "swipe_l": "#990000",
                 "swipe_r": "#000099",
-                "hold_l": "#aa0000",
-                "hold_r": "#0000aa",
+                "hold_l": "#cc8888",
+                "hold_r": "#8888cc",
                 "step_down": "yellow",
                 "step_jump": "#00ccff",
                 "metatext": "black"
@@ -90,7 +90,9 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     let ypos_start = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["start_tick"], tick);
     let ypos_end = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["end_tick"], tick);
     let color = null;
-    let xscale = (canvas_x / 65536);
+    let holdcolor = null;
+    let swipecolor = null;
+    let xscale = (canvas_x / LANE_WIDTH);
 
     //the visual height of the note
     let height = 40 * tickHeight;
@@ -102,9 +104,13 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
 
     if (notedict["kind"] == 1){
         color = colors["step_l"];
+        holdcolor = colors["hold_l"];
+        swipecolor = colors["swipe_l"];
     }
     if (notedict["kind"] == 2){
         color = colors["step_r"];
+        holdcolor = colors["hold_r"];
+        swipecolor = colors["swipe_r"];
     }
     if (notedict["kind"] == 3){
         color = colors["step_down"];
@@ -121,7 +127,7 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     for (let i = 0; i < notedict["long_point"].length; i++){
         let ypos_point = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i]["tick"], tick);
         
-        graphicsContext.fillStyle = color;
+        graphicsContext.fillStyle = holdcolor;
         if (i != 0){
             let last_ypos_point = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i-1]["tick"], tick);
             let ypos_lastPoint = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i-1]["tick"], tick);
