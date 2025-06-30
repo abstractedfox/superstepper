@@ -33,6 +33,10 @@
         #container{
             display:flex;
         }
+        
+        #inspector-note{
+            display: none; 
+        }
     </style>
 </head>
 <body>
@@ -84,16 +88,19 @@
                 Chart session
             </div>
         </div>
-        <div id="inspector">
+        <div id="inspector-outer">
             <div>
                 Inspector
             </div>
-            <div id="selectedNote">
+            <div id="inspector-note">
+                <div id="selectedNote">
+                </div>
+                <div id="start_tick">
+                    <input type="number" value="0" id="start_tick">
+                    Start Tick
+                </div>
             </div>
-            <div id="start_tick">
-                <input type="number" value="0" id="start_tick">
-                Start Tick
-            </div>
+            After inspector
         </div>
     </div>
 </body>
