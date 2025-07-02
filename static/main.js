@@ -22,6 +22,9 @@ let currentSession = null;
 let lasttimeval = 0;
 let currentTick = 0;
 
+let modes = {"navigate": "navigate"};
+let currentMode = modes["navigate"];
+
 //TODO: rename this to something that doesn't sound like a chart element
 export function step(timeval){
     let dt = timeval - lasttimeval;
@@ -92,9 +95,11 @@ export function clickHandler(event, currentTick, tickHeight){
     let tick = tickAt(event.offsetX, event.offsetY, currentTick, tickHeight);
     let x = canvasXToLaneX(event.offsetX);
 
+    if (currentMode = modes["navigate"]){
     //Get any notes at that location
-    let notes = getNotesAt(getSession(currentSession).notes_cache, generateNoteHeight(tickHeight), x, tick);
-    console.log("Notes", notes);
+        let notes = getNotesAt(getSession(currentSession).notes_cache, generateNoteHeight(tickHeight), x, tick);
+        console.log("Notes", notes);
+    }
 
     //addClickMarker(graphicsContext, tick);
 }
