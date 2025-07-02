@@ -57,9 +57,14 @@ export function tickAt(canvasX, canvasY, currentTick, tickHeight){
 
 
 export function canvasXToLaneX(canvasXPos){
-    console.log({canvas_x, canvasXPos, LANE_WIDTH});
     return (canvasXPos / canvas_x) * LANE_WIDTH;
 }
+
+
+export function generateNoteHeight(tickHeight){
+    return 40 * tickHeight;
+}
+
 
 //Optimization class for rendering steps. Call update() when the dimensions of
 //the viewport or the note scaling changes. Call draw() when only the y offset
@@ -110,7 +115,7 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     let xscale = (canvas_x / LANE_WIDTH);
 
     //the visual height of the note
-    let height = 40 * tickHeight;
+    let height = generateNoteHeight(tickHeight);
     
     if (!(ypos_start - height > -1 && ypos_start - height < canvas_y 
         || (ypos_end < canvas_y && ypos_end > -1))){
@@ -245,6 +250,7 @@ export function scrollHandler(event){
     }
 }
 
+/*
 export function clickHandler(event, currentTick, tickHeight){
     tickAt(event.offsetX, event.offsetY, dimensions["judgement_line_base"], currentTick, tickHeight);
-}
+}*/

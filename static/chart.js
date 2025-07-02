@@ -1,3 +1,4 @@
+"use strict";
 import { setCurrentSession } from "./main.js";
 
 let _sessions = {};
@@ -117,4 +118,23 @@ export async function uploadChart(){
         dropdownElement.add(dropdownOption);
         dropdownElement.selectedIndex = dropdownElement.options.length - 1;
     });
+}
+
+//Get all notes at an exact x position and tick, accounting for visual note height
+export function getNotesAt(noteDicts, noteHeight, xPos, tick){
+    let results = [];
+    for (let note in noteDicts){
+        let getElement = (elem) => { return parseInt(noteDicts[note][elem]); };
+        
+        //Keep this until we improve the accuracy
+        if (noteDicts[note]["start_tick"] - 100 < tick && noteDicts[note]["start_tick"] + 100 > tick){
+            console.log("x/rpos", getElement("left_pos") , getElement("right_pos"), "start", getElement("start_tick"), "end", getElement("start_tick") + noteHeight, "noteheight", noteHeight, "exact xPos", xPos, "tick", tick);
+        }
+
+        if (getElement("left_pos") <= xPos && getElement("right_pos") >= xPos && getElement("start_tick") <= tick && getElement("start_tick") + noteHeight >= tick){
+            results.push(noteDicts[note]);
+        }
+    }
+
+    return results;
 }

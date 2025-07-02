@@ -1,6 +1,6 @@
-import { drawLane, updateViewportDimensions, updateLane, tickAt, canvasXToLaneX } from "./graphics.js";
+import { drawLane, updateViewportDimensions, updateLane, tickAt, canvasXToLaneX, generateNoteHeight } from "./graphics.js";
 import { playing, audioContext, startOffset, bpm, lastStartTime } from "./audio.js";
-import { APISession, uploadChart, getSession } from "./chart.js";
+import { APISession, uploadChart, getSession, getNotesAt } from "./chart.js";
 "use strict";
 
 export let TIME_UNIT = 480;
@@ -20,16 +20,17 @@ let timestamp = 0; //fine position in the song
 
 let currentSession = null;
 let lasttimeval = 0;
-
+let currentTick = 0;
 
 //TODO: rename this to something that doesn't sound like a chart element
 export function step(timeval){
     let dt = timeval - lasttimeval;
-    
+    currentTick = document.getElementById("current_tick");
+
     if (playing){
         timestamp = lastStartTime + audioContext.currentTime - audioContext.outputLatency - startOffset;
         beatsElapsed = timestamp * (bpm/60);
-        document.getElementById("current_tick").value = Math.floor(beatsElapsed * TIME_UNIT);
+        currentTick.value = Math.floor(beatsElapsed * TIME_UNIT);
 
         if (boop){
             if (Math.floor(beatsElapsed) - Math.floor(lastBeats) > 0){
@@ -50,10 +51,10 @@ export function step(timeval){
     updateViewportDimensions(graphicsContext);
     
     if (currentSession == null){
-        updateLane(graphicsContext, null, document.getElementById("current_tick").value, 1);
+        updateLane(graphicsContext, null, currentTick.value, 1);
     }
     else{
-        updateLane(graphicsContext, getSession(currentSession).notes_cache, parseInt(document.getElementById("current_tick").value), 1);
+        updateLane(graphicsContext, getSession(currentSession).notes_cache, parseInt(currentTick.value), 1);
     }
 
     if (debug){
@@ -89,5 +90,8 @@ export function start(canvasContext){
 export function clickHandler(event, currentTick, tickHeight){
     let tick = tickAt(event.offsetX, event.offsetY, currentTick, tickHeight);
     let x = canvasXToLaneX(event.offsetX);
-    console.log("Click at", x, tick);
+    //console.log("Click at", x, tick);
+
+    let notes = getNotesAt(getSession(currentSession).notes_cache, generateNoteHeight(tickHeight), x, tick);
+    console.log("Notes", notes);
 }
