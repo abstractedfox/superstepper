@@ -88,10 +88,11 @@ export function start(canvasContext){
 
 //Tick args are necessary for anything that needs to find notes by position
 export function clickHandler(event, currentTick, tickHeight){
+    //Receive click coordinates in chart coordinates
     let tick = tickAt(event.offsetX, event.offsetY, currentTick, tickHeight);
     let x = canvasXToLaneX(event.offsetX);
-    //console.log("Click at", x, tick);
 
+    //Get any notes at that location
     let notes = getNotesAt(getSession(currentSession).notes_cache, generateNoteHeight(tickHeight), x, tick);
     console.log("Notes", notes);
 }

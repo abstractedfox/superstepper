@@ -2,6 +2,8 @@ import { TIME_UNIT } from "./main.js";
 
 const LANE_WIDTH = 65536;
 
+let animatedObjects = []; //All currently-alive animated objects
+
 let viewport_x = window.innerWidth; 
 let viewport_y = window.innerHeight; 
 
@@ -47,7 +49,7 @@ function scrollPosition(tickHeight, targetY, noteTick, currentTick){
     return y;
 }
 
-
+//TODO: go back and fix that this description does not match the current state of this function
 //For a given canvas coordinate pair, return a note at that location if it exists
 export function tickAt(canvasX, canvasY, currentTick, tickHeight){
     //this is just the scrollPosition math backwards
@@ -66,6 +68,7 @@ export function generateNoteHeight(tickHeight){
 }
 
 
+//Deletion candidate; do we definitely need this?
 //Optimization class for rendering steps. Call update() when the dimensions of
 //the viewport or the note scaling changes. Call draw() when only the y offset
 //has changed (ie during playback)
@@ -103,6 +106,24 @@ class GraphicalStep{
         graphicsContext.fillStyle = this.color;
         graphicsContext.fillRect(xPos, ypos_start - height, width, height); 
     }
+}
+
+
+//Draw a generic horizontal marker
+function drawMarker(graphicsContext, color, text, destinationTick, currentTick){
+    let yPos = scrollPosition(tickHeight, dimensions["judgement_line_base"], destinationTick, currentTick);
+    graphicsContext.fillStyle = color;
+
+    graphicsContext.beginPath();
+    graphicsContext.moveTo(0, yPos);
+    graphicsContext.lineTo(dimensions.lane_w, yPos);
+    graphicsContext.stroke();
+    graphicsContext.closePath();
+
+    graphicsContext.font = "8px";
+    graphicsContext.fillStyle = colors["metatext"];
+    graphicsContext.textAlign = "left";
+    graphicsContext.fillText(text, 5, yPos - 8);
 }
 
 
@@ -186,6 +207,13 @@ export function updateViewportDimensions(graphicsContext){
 }
 
 
+function updateAnims(graphicsContext, dt){
+    for (anim in animatedObjects){
+        anim.advance(dt);
+    }
+}
+
+
 export function updateLane(graphicsContext, notes, tick, tickHeight){
     drawLane(graphicsContext);
     
@@ -250,7 +278,17 @@ export function scrollHandler(event){
     }
 }
 
-/*
-export function clickHandler(event, currentTick, tickHeight){
-    tickAt(event.offsetX, event.offsetY, dimensions["judgement_line_base"], currentTick, tickHeight);
-}*/
+class BaseAnim{
+    constructor(){
+        this._elapsed = 0.0;
+        this.alive = true;
+    }
+
+    advance(dt, tick, tickHeight){
+        this._elapsed += dt;
+    }
+
+    _draw(){
+        console.log("Unimplemented _draw");
+    }
+}
