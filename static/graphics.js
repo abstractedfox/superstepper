@@ -317,7 +317,6 @@ class Anim_TickGhost extends BaseAnim{
 
     advance(dt, tick, tickHeight){
         super.advance(dt);
-        console.log("dt", dt, tick);
         if (this._elapsed > this._duration){
             this.alive = false;
             return;
