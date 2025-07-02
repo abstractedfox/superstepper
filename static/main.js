@@ -25,6 +25,10 @@ let currentTick = 0;
 let modes = {"navigate": "navigate"};
 let currentMode = modes["navigate"];
 
+let inspectorStates = {"default": "default", "note": "note"}
+let currentInspectorState = inspectorStates["default"];
+let currentInspectorTarget = null;
+
 //TODO: rename this to something that doesn't sound like a chart element
 export function step(timeval){
     let dt = timeval - lasttimeval;
@@ -89,6 +93,25 @@ export function start(canvasContext){
 }
 
 
+function setInspector(inspectorTarget, inspectorState){
+    //Initialize the visual state
+    document.getElementById("inspector-note").style.display = "none";
+
+    switch (inspectorState){
+        case inspectorStates["note"]:
+            document.getElementById("inspector-note").style.display = "block";
+            document.getElementById("start_tick").value = inspectorTarget["start_tick"];
+            document.getElementById("end_tick").value = inspectorTarget["end_tick"];
+            document.getElementById("left_pos").value = inspectorTarget["left_pos"];
+            document.getElementById("right_pos").value = inspectorTarget["right_pos"];
+            document.getElementById("kind").value = inspectorTarget["kind"];
+            document.getElementById("player_id").value = inspectorTarget["player_id"];
+
+            break;
+    }
+}
+
+
 //Tick args are necessary for anything that needs to find notes by position
 export function clickHandler(event, currentTick, tickHeight){
     //Receive click coordinates in chart coordinates
@@ -98,7 +121,11 @@ export function clickHandler(event, currentTick, tickHeight){
     if (currentMode = modes["navigate"]){
     //Get any notes at that location
         let notes = getNotesAt(getSession(currentSession).notes_cache, generateNoteHeight(tickHeight), x, tick);
-        console.log("Notes", notes);
+        
+        if (notes.length > 0){
+            currentInspectorTarget = notes[0];
+            setInspector(notes[0], inspectorStates["note"]);
+        }
     }
 
     //addClickMarker(graphicsContext, tick);
