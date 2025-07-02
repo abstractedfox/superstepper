@@ -24,6 +24,7 @@ let colors = {"lane_bg": "#eeeeee",
                 "step_jump": "#00ccff",
                 "metatext": "black"
             };
+
 let dimensions = {"lane_w": canvas_x, "judgement_line_base": 0, "judgement_line_height_from_bottom": 40};
 dimensions["judgement_line_base"] = viewport_y - dimensions["judgement_line_height_from_bottom"];
 
@@ -203,8 +204,35 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
 }
 
 
-export function updateViewportDimensions(graphicsContext){
-    graphicsContext.canvas.height = viewport_y;
+export function drawLane(graphicsContext){
+    graphicsContext.fillStyle = colors["lane_bg"];
+    graphicsContext.fillRect(0, 0, dimensions.lane_w, viewport_y); 
+
+    graphicsContext.strokeStyle = colors["line"]; 
+    graphicsContext.beginPath();
+    graphicsContext.moveTo(dimensions.lane_w / 4, 0);
+    graphicsContext.lineTo(dimensions.lane_w / 4, viewport_y);
+    graphicsContext.stroke();
+    graphicsContext.closePath();
+
+    graphicsContext.beginPath();
+    graphicsContext.moveTo(dimensions.lane_w / 2, 0);
+    graphicsContext.lineTo(dimensions.lane_w / 2, viewport_y);
+    graphicsContext.stroke();
+    graphicsContext.closePath();
+     
+    graphicsContext.beginPath();
+    graphicsContext.moveTo((dimensions.lane_w / 4) * 3, 0);
+    graphicsContext.lineTo((dimensions.lane_w / 4) * 3, viewport_y);
+    graphicsContext.stroke();
+    graphicsContext.closePath();
+
+    graphicsContext.beginPath();
+    graphicsContext.moveTo(0, dimensions.judgement_line_base);
+    graphicsContext.strokeStyle = colors["hantei"];
+    graphicsContext.lineTo(dimensions.lane_w, dimensions.judgement_line_base);
+    graphicsContext.stroke();
+    graphicsContext.closePath();
 }
 
 
@@ -238,35 +266,8 @@ export function updateLane(graphicsContext, notes, tick, tickHeight, dt){
 }
 
 
-export function drawLane(graphicsContext){
-    graphicsContext.fillStyle = colors["lane_bg"];
-    graphicsContext.fillRect(0, 0, dimensions.lane_w, viewport_y); 
-
-    graphicsContext.strokeStyle = colors["line"]; 
-    graphicsContext.beginPath();
-    graphicsContext.moveTo(dimensions.lane_w / 4, 0);
-    graphicsContext.lineTo(dimensions.lane_w / 4, viewport_y);
-    graphicsContext.stroke();
-    graphicsContext.closePath();
-
-    graphicsContext.beginPath();
-    graphicsContext.moveTo(dimensions.lane_w / 2, 0);
-    graphicsContext.lineTo(dimensions.lane_w / 2, viewport_y);
-    graphicsContext.stroke();
-    graphicsContext.closePath();
-     
-    graphicsContext.beginPath();
-    graphicsContext.moveTo((dimensions.lane_w / 4) * 3, 0);
-    graphicsContext.lineTo((dimensions.lane_w / 4) * 3, viewport_y);
-    graphicsContext.stroke();
-    graphicsContext.closePath();
-
-    graphicsContext.beginPath();
-    graphicsContext.moveTo(0, dimensions.judgement_line_base);
-    graphicsContext.strokeStyle = colors["hantei"];
-    graphicsContext.lineTo(dimensions.lane_w, dimensions.judgement_line_base);
-    graphicsContext.stroke();
-    graphicsContext.closePath();
+export function updateViewportDimensions(graphicsContext){
+    graphicsContext.canvas.height = viewport_y;
 }
 
 
@@ -290,7 +291,7 @@ export function scrollHandler(event){
         document.getElementById("current_tick").value = parseInt(document.getElementById("current_tick").value) + delta; 
     }
     else{
-        document.getElementById("tick_height").value = Math.max(0.001, parseFloat(document.getElementById("tick_height").value) + 0.05 * (event.deltaY / 1000));
+        document.getElementById("tick_height").value = Math.max(0.001, parseFloat(document.getElementById("tick_height").value) + 0.05 * ((event.deltaY * sign) / 1000));
     }
 }
 
