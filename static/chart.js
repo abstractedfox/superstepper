@@ -120,6 +120,8 @@ export async function uploadChart(){
     });
 }
 
+
+//Known issue: At low zoom scales, this seems to lose precision
 //Get all notes at an exact x position and tick, accounting for visual note height
 export function getNotesAt(noteDicts, noteHeight, xPos, tick){
     let results = [];
@@ -131,7 +133,9 @@ export function getNotesAt(noteDicts, noteHeight, xPos, tick){
             console.log("x/rpos", getElement("left_pos") , getElement("right_pos"), "start", getElement("start_tick"), "end", getElement("start_tick") + noteHeight, "noteheight", noteHeight, "exact xPos", xPos, "tick", tick);
         }
 
-        if (getElement("left_pos") <= xPos && getElement("right_pos") >= xPos && getElement("start_tick") <= tick && getElement("start_tick") + noteHeight >= tick){
+        //TEMPFIX for precision issue (although this may be desirable anyway)
+        let clickPadding = 15;
+        if (getElement("left_pos") <= xPos && getElement("right_pos") >= xPos && getElement("start_tick") - clickPadding <= tick && getElement("start_tick") + noteHeight + clickPadding >= tick){
             results.push(noteDicts[note]);
         }
     }
