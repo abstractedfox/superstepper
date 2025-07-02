@@ -110,9 +110,10 @@ class GraphicalStep{
 
 
 //Draw a generic horizontal marker
-function drawMarker(graphicsContext, color, text, destinationTick, currentTick){
+function drawMarker(graphicsContext, color, text, destinationTick, currentTick, tickHeight){
     let yPos = scrollPosition(tickHeight, dimensions["judgement_line_base"], destinationTick, currentTick);
     graphicsContext.fillStyle = color;
+    graphicsContext.strokeStyle = color;
 
     graphicsContext.beginPath();
     graphicsContext.moveTo(0, yPos);
@@ -207,23 +208,33 @@ export function updateViewportDimensions(graphicsContext){
 }
 
 
-function updateAnims(graphicsContext, dt){
-    for (anim in animatedObjects){
-        anim.advance(dt);
+function updateAnims(graphicsContext, dt, tick, tickHeight){
+    let len = animatedObjects.length;
+    for (let i = 0; i < len; i++){
+        if (animatedObjects[i].alive){
+            animatedObjects[i].advance(dt, tick, tickHeight);
+        }
+        else{
+            animatedObjects.splice(i, 1);
+            len--;
+        }
     }
 }
 
 
-export function updateLane(graphicsContext, notes, tick, tickHeight){
+//investigate: it doesn't look like we're using tickHeight anywhere, did we forget we added that and then sidestep using it? verify usage before changing
+export function updateLane(graphicsContext, notes, tick, tickHeight, dt){
     drawLane(graphicsContext);
-    
+
     if (notes == null){
         return;
     }
     
+
     for (let i = 0; i < notes.length; i++){
         drawNote(graphicsContext, notes[i], viewport_x, document.getElementById("tick_height").value, tick);     
     }
+    updateAnims(graphicsContext, dt, tick, tickHeight);
 }
 
 
@@ -259,6 +270,11 @@ export function drawLane(graphicsContext){
 }
 
 
+//Add a click marker to the animations list
+export function addClickMarker(graphicsContext, destinationTick){
+    animatedObjects.push(new Anim_TickGhost(graphicsContext, 4000, destinationTick));
+}
+
 export function scrollHandler(event){
     //apparently, the 'wheel' event can be triggered by more than a scroll wheel, and can't be used to reliably determine scroll direction
     //however, we are only targeting mouse and keyboard users. we'll say -deltaY is scrolling up and +deltaY is scrolling down by default
@@ -279,7 +295,8 @@ export function scrollHandler(event){
 }
 
 class BaseAnim{
-    constructor(){
+    constructor(graphicsContext){
+        this._graphicsContext = graphicsContext;
         this._elapsed = 0.0;
         this.alive = true;
     }
@@ -287,8 +304,25 @@ class BaseAnim{
     advance(dt, tick, tickHeight){
         this._elapsed += dt;
     }
+}
 
-    _draw(){
-        console.log("Unimplemented _draw");
+
+//TODO: this seems to do everything except draw, figure out why
+class Anim_TickGhost extends BaseAnim{
+    constructor(graphicsContext, duration, destinationTick){
+        super(graphicsContext);
+        this._destinationTick = destinationTick;
+        this._duration = duration;
+    }
+
+    advance(dt, tick, tickHeight){
+        super.advance(dt);
+        console.log("dt", dt, tick);
+        if (this._elapsed > this._duration){
+            this.alive = false;
+            return;
+        }
+        
+        drawMarker(this._graphicsContext, colors["metatext"], "T: " + this._destinationTick, tick, tickHeight);
     }
 }

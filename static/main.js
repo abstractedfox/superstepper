@@ -1,4 +1,4 @@
-import { drawLane, updateViewportDimensions, updateLane, tickAt, canvasXToLaneX, generateNoteHeight } from "./graphics.js";
+import { drawLane, updateViewportDimensions, updateLane, tickAt, canvasXToLaneX, generateNoteHeight, addClickMarker } from "./graphics.js";
 import { playing, audioContext, startOffset, bpm, lastStartTime } from "./audio.js";
 import { APISession, uploadChart, getSession, getNotesAt } from "./chart.js";
 "use strict";
@@ -51,10 +51,10 @@ export function step(timeval){
     updateViewportDimensions(graphicsContext);
     
     if (currentSession == null){
-        updateLane(graphicsContext, null, currentTick.value, 1);
+        updateLane(graphicsContext, null, currentTick.value, 1, dt);
     }
     else{
-        updateLane(graphicsContext, getSession(currentSession).notes_cache, parseInt(currentTick.value), 1);
+        updateLane(graphicsContext, getSession(currentSession).notes_cache, parseInt(currentTick.value), 1, dt);
     }
 
     if (debug){
@@ -95,4 +95,6 @@ export function clickHandler(event, currentTick, tickHeight){
     //Get any notes at that location
     let notes = getNotesAt(getSession(currentSession).notes_cache, generateNoteHeight(tickHeight), x, tick);
     console.log("Notes", notes);
+
+    //addClickMarker(graphicsContext, tick);
 }
