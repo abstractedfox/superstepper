@@ -172,12 +172,26 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
         
         graphicsContext.fillStyle = holdcolor;
         if (i != 0){
-            let last_ypos_point = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i-1]["tick"], tick);
             let ypos_lastPoint = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i-1]["tick"], tick);
             
             graphicsContext.beginPath();
+            if (notedict["long_point"][i-1]["left_end_pos"] == null){
                 graphicsContext.moveTo(notedict["long_point"][i-1]["left_pos"] * xscale, ypos_lastPoint);
                 graphicsContext.lineTo(notedict["long_point"][i-1]["right_pos"] * xscale, ypos_lastPoint);
+            }
+            else{
+                graphicsContext.moveTo(notedict["long_point"][i-1]["left_end_pos"] * xscale, ypos_lastPoint);
+                graphicsContext.lineTo(notedict["long_point"][i-1]["right_end_pos"] * xscale, ypos_lastPoint);
+                
+                /*
+                //This is messy and needs to account for the way the math will be different depending on the direction of the swipe (leftward swipes should use left_end_pos and right_pos, rightward swipes should use left_pos and right_end_pos)
+                graphicsContext.fillStyle = swipecolor;
+                
+                graphicsContext.fillRect(notedict["long_point"][i-1]["left_end_pos"] * xscale, ypos_lastPoint - height, (notedict["long_point"][i-1]["right_pos"] - notedict["long_point"][i-1]["left_end_pos"]) * xscale, height);
+                
+                graphicsContext.fillStyle = holdcolor;
+                */
+            }
         }
         else{
             let ypos_lastPoint = ypos_start;
