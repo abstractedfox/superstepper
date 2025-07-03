@@ -2,7 +2,7 @@
 <head>
     <script type="module">
         //TODO: put all the event handler imports in the same file
-        import { start, setCurrentSession, clickHandler } from "../static/main.js";
+        import { start, setCurrentSession, clickHandler, updateInspectorTarget } from "../static/main.js";
         import { playing, uploadAudio, startAudio, stopAudio } from "../static/audio.js";
         import { uploadChart } from "../static/chart.js";
         import { scrollHandler } from "../static/graphics.js";
@@ -12,7 +12,26 @@
 
         document.getElementById("audio_upload").addEventListener("change", uploadAudio);
         document.getElementById("chart_upload").addEventListener("change", uploadChart);
-        
+
+        document.getElementById("start_tick").addEventListener("input", () =>{ 
+            updateInspectorTarget("start_tick", parseInt(document.getElementById("start_tick").value));
+        });
+        document.getElementById("end_tick").addEventListener("input", () =>{ 
+            updateInspectorTarget("end_tick", parseInt(document.getElementById("end_tick").value));
+        });
+        document.getElementById("left_pos").addEventListener("input", () =>{ 
+            updateInspectorTarget("left_pos", parseInt(document.getElementById("left_pos").value));
+        });
+        document.getElementById("right_pos").addEventListener("input", () =>{ 
+            updateInspectorTarget("right_pos", parseInt(document.getElementById("right_pos").value));
+        });
+        document.getElementById("kind").addEventListener("input", () =>{ 
+            updateInspectorTarget("kind", parseInt(document.getElementById("kind").value));
+        });
+        document.getElementById("player_id").addEventListener("input", () =>{ 
+            updateInspectorTarget("player_id", parseInt(document.getElementById("player_id").value));
+        });
+
         for (const eventType of ["mousedown", "mouseup", "wheel", "mousemove"]){
             document.getElementById("lane").addEventListener(eventType, (event) => { 
                 //note that you probably want event.offsetX, event.offsetY when relevant

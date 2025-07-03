@@ -112,6 +112,11 @@ function setInspector(inspectorTarget, inspectorState){
 }
 
 
+export function updateInspectorTarget(key, value){
+    currentInspectorTarget[key] = value;
+}
+
+
 //Tick args are necessary for anything that needs to find notes by position
 export function clickHandler(event, currentTick, tickHeight){
     //Receive click coordinates in chart coordinates
