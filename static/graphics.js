@@ -348,3 +348,53 @@ class Anim_TickGhost extends BaseAnim{
         drawMarker(this._graphicsContext, colors["metatext"], "T: " + this._destinationTick, tick, tickHeight);
     }
 }
+
+
+// Useful for being able to deliberately create separate graphics 'layers' without needing to change dramatically from making calls directly on the graphics context object
+// Usage pattern: Call .call on an instance with the name of the function (str) as the 1st argument and all normal arguments in the appropriate order as an array for the 2nd argument
+// Call .set to do the same for attributes. Wrapping in an array is optional for .set
+// When ready to draw, call exec()
+class gContextBuffer{
+    constructor(graphicsContext){
+        this.calls = [];
+        this.context = graphicsContext;
+    }
+
+    call(func, args){
+        if (typeof(func) != typeof("")){
+            console.error("gContextBuffer.call must receive function name as a string");
+            return;
+        }
+        if (typeof(args) != typeof([])){
+            console.error("gContextBuffer.call must receive args as an array");
+            return;
+        }
+        
+        this.calls.push([func, args]);
+    }
+
+    //for now this just wraps call, but would make for more descriptive code where we're setting an attribute
+    //we'll also let it accept args as non-arrays
+    set(func, args){
+        if (typeof(args) != typeof([])){
+            args = [args];
+        }
+        this.call(func, args);
+    }
+
+    exec(){
+        for (let i = 0; i < this.calls.length; i++){
+            let attr = this.context[this.calls[i][0]];
+            
+            if (attr.apply instanceof Function){
+                attr.apply(this.context, this.calls[i][1]);
+            }
+            else{
+                //if the object isn't a function, then we're setting an attribute
+                //this also means attr isn't a reference to anything, so we can't use it
+                //we could divert this through another function, and maybe we will later, but this does save the trouble of needing to differentiate the two on the stack without being able to lean on "an attribute can't be an array" (maybe they can be? idk)
+                this.context[this.calls[i][0]] = this.calls[i][1][0];
+            }
+        }
+    }
+}
