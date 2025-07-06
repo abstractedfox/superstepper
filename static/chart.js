@@ -54,6 +54,7 @@ export class APISession{
 
             case "update_chart":
                 newRequest["data"]["changes"] = changes;
+                break
 
             case "get_steps":
                 break
