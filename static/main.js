@@ -1,7 +1,7 @@
+"use strict";
 import { drawLane, updateViewportDimensions, updateLane, tickAt, canvasXToLaneX, generateNoteHeight, addClickMarker } from "./graphics.js";
 import { playing, audioContext, startOffset, bpm, lastStartTime } from "./audio.js";
 import { APISession, uploadChart, getSession, getNotesAt } from "./chart.js";
-"use strict";
 
 export let TIME_UNIT = 480;
 
@@ -112,8 +112,15 @@ function setInspector(inspectorTarget, inspectorState){
 }
 
 
+//Update the current inspector target, aka the currently selected note
 export function updateInspectorTarget(key, value){
+    let oldNote = {...currentInspectorTarget};
     currentInspectorTarget[key] = value;
+    
+    oldNote["exists"] = 0;
+    
+    getSession(currentSession).request({functionName: "update_chart", changes: [oldNote]});
+    getSession(currentSession).request({functionName: "update_chart", changes: [getSession(currentSession).notes_cache[currentInspectorTarget[key]]]});
 }
 
 
