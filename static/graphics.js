@@ -371,9 +371,13 @@ class gContextBuffer{
             console.error("gContextBuffer.call must receive function name as a string");
             return;
         }
-        if (typeof(args) != typeof([])){
+        if (args != null && typeof(args) != typeof([])){
             console.error("gContextBuffer.call must receive args as an array");
             return;
+        }
+        if (args == null){
+            //for functions that don't take arguments, it's nice to not have to pass an empty array
+            args = [];
         }
         
         this.calls.push([func, args]);
@@ -391,7 +395,10 @@ class gContextBuffer{
     exec(){
         for (let i = 0; i < this.calls.length; i++){
             let attr = this.context[this.calls[i][0]];
-            
+            if (attr == null){
+                throw new Error("Context does not contain the property " + this.calls[i][0]);
+            }
+
             if (attr.apply instanceof Function){
                 attr.apply(this.context, this.calls[i][1]);
             }
