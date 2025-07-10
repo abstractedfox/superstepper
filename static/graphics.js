@@ -142,6 +142,7 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     
     let holdsBaseLayer = new gContextBuffer(graphicsContext);
     let stepsBaseLayer = new gContextBuffer(graphicsContext);
+    let metaBaseLayer = new gContextBuffer(graphicsContext);
 
     if (!(ypos_start - height > -1 && ypos_start - height < canvas_y 
         || (ypos_end < canvas_y && ypos_end > -1))){
@@ -222,13 +223,14 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     stepsBaseLayer.call("fillRect", [xPos, ypos_start - height, width, height]);
 
     if (showTicks){
-        graphicsContext.fillStyle = colors["metatext"]; 
-        graphicsContext.textAlign = "center";
-        graphicsContext.fillText(notedict["start_tick"].toString(), xPos + (width/2), ypos_start);
+        metaBaseLayer.set("fillStyle", colors["metatext"]);
+        metaBaseLayer.set("textAlign", "center");
+        metaBaseLayer.call("fillText", [notedict["start_tick"].toString(), xPos + (width/2), ypos_start]);
     }
     
     holdsBaseLayer.exec();
     stepsBaseLayer.exec();
+    metaBaseLayer.exec();
 }
 
 
