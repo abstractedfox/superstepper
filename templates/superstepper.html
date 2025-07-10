@@ -1,7 +1,8 @@
 <html>
 <head>
     <script type="module">
-        import { start, setCurrentSession } from "../static/main.js";
+        //TODO: put all the event handler imports in the same file
+        import { start, setCurrentSession, clickHandler, updateInspectorTarget } from "../static/main.js";
         import { playing, uploadAudio, startAudio, stopAudio } from "../static/audio.js";
         import { uploadChart } from "../static/chart.js";
         import { scrollHandler } from "../static/graphics.js";
@@ -11,12 +12,35 @@
 
         document.getElementById("audio_upload").addEventListener("change", uploadAudio);
         document.getElementById("chart_upload").addEventListener("change", uploadChart);
-        
+
+        document.getElementById("start_tick").addEventListener("input", () =>{ 
+            updateInspectorTarget("start_tick", parseInt(document.getElementById("start_tick").value));
+        });
+        document.getElementById("end_tick").addEventListener("input", () =>{ 
+            updateInspectorTarget("end_tick", parseInt(document.getElementById("end_tick").value));
+        });
+        document.getElementById("left_pos").addEventListener("input", () =>{ 
+            updateInspectorTarget("left_pos", parseInt(document.getElementById("left_pos").value));
+        });
+        document.getElementById("right_pos").addEventListener("input", () =>{ 
+            updateInspectorTarget("right_pos", parseInt(document.getElementById("right_pos").value));
+        });
+        document.getElementById("kind").addEventListener("input", () =>{ 
+            updateInspectorTarget("kind", parseInt(document.getElementById("kind").value));
+        });
+        document.getElementById("player_id").addEventListener("input", () =>{ 
+            updateInspectorTarget("player_id", parseInt(document.getElementById("player_id").value));
+        });
+
         for (const eventType of ["mousedown", "mouseup", "wheel", "mousemove"]){
             document.getElementById("lane").addEventListener(eventType, (event) => { 
                 //note that you probably want event.offsetX, event.offsetY when relevant
                 if (eventType == "wheel"){
                     scrollHandler(event);
+                }
+
+                if (eventType == "mousedown"){
+                    clickHandler(event, parseInt(document.getElementById("current_tick").value), parseFloat(document.getElementById("tick_height").value));
                 }
             });
         }
@@ -32,6 +56,10 @@
         }
         #container{
             display:flex;
+        }
+        
+        #inspector-note{
+            display: none; 
         }
     </style>
 </head>
@@ -70,7 +98,7 @@
             </div>
             <hr>
             <div>
-                <input type="number" value="573" id="boopfreq" /> 
+                <input type="number" value="0" id="boopfreq" /> 
                 Boop frequency 
             </div>
             
@@ -82,6 +110,43 @@
                 <select id="sessionDropdown">
                 </select>
                 Chart session
+            </div>
+        </div>
+        <div id="inspector-outer">
+            <div>
+                Inspector
+            </div>
+            <div id="inspector-note">
+                <div id="selectedNote">
+                </div>
+                <div>
+                    <input type="number" value="0" id="start_tick" />
+                    Start Tick
+                </div>
+                <div>
+                    <input type="number" value="0" id="end_tick" disabled />
+                    End Tick
+                </div>
+                    
+                <div>
+                    <input type="number" value="0" id="left_pos" />
+                    Left Position
+                </div>
+                    
+                <div>
+                    <input type="number" value="0" id="right_pos" />
+                    Right Position
+                </div>
+                    
+                <div>
+                    <input type="number" value="0" id="kind" />
+                    Kind
+                </div>
+
+                <div>
+                    <input type="number" value="0" id="player_id" />
+                    Player ID
+                </div>
             </div>
         </div>
     </div>

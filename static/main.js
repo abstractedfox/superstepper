@@ -1,7 +1,7 @@
-import { drawLane, updateViewportDimensions, updateLane } from "./graphics.js";
-import { playing, audioContext, startOffset, bpm, lastStartTime } from "./audio.js";
-import { APISession, uploadChart, getSession } from "./chart.js";
 "use strict";
+import { drawLane, updateViewportDimensions, updateLane, tickAt, canvasXToLaneX, generateNoteHeight, addClickMarker } from "./graphics.js";
+import { playing, audioContext, startOffset, bpm, lastStartTime } from "./audio.js";
+import { APISession, uploadChart, getSession, getNotesAt } from "./chart.js";
 
 export let TIME_UNIT = 480;
 
@@ -20,16 +20,24 @@ let timestamp = 0; //fine position in the song
 
 let currentSession = null;
 let lasttimeval = 0;
+let currentTick = 0;
 
+let modes = {"navigate": "navigate"};
+let currentMode = modes["navigate"];
+
+let inspectorStates = {"default": "default", "note": "note"}
+let currentInspectorState = inspectorStates["default"];
+let currentInspectorTarget = null;
 
 //TODO: rename this to something that doesn't sound like a chart element
 export function step(timeval){
     let dt = timeval - lasttimeval;
-    
+    currentTick = document.getElementById("current_tick");
+
     if (playing){
         timestamp = lastStartTime + audioContext.currentTime - audioContext.outputLatency - startOffset;
         beatsElapsed = timestamp * (bpm/60);
-        document.getElementById("current_tick").value = Math.floor(beatsElapsed * TIME_UNIT);
+        currentTick.value = Math.floor(beatsElapsed * TIME_UNIT);
 
         if (boop){
             if (Math.floor(beatsElapsed) - Math.floor(lastBeats) > 0){
@@ -50,10 +58,10 @@ export function step(timeval){
     updateViewportDimensions(graphicsContext);
     
     if (currentSession == null){
-        updateLane(graphicsContext, null, document.getElementById("current_tick").value, 1);
+        updateLane(graphicsContext, null, currentTick.value, 1, dt);
     }
     else{
-        updateLane(graphicsContext, getSession(currentSession).notes_cache, parseInt(document.getElementById("current_tick").value), 1);
+        updateLane(graphicsContext, getSession(currentSession).notes_cache, parseInt(currentTick.value), 1, dt);
     }
 
     if (debug){
@@ -82,4 +90,55 @@ export function setCurrentSession(sessionID){
 export function start(canvasContext){
     graphicsContext = canvasContext;
     step();
+}
+
+
+function setInspector(inspectorTarget, inspectorState){
+    //Initialize the visual state
+    document.getElementById("inspector-note").style.display = "none";
+
+    switch (inspectorState){
+        case inspectorStates["note"]:
+            document.getElementById("inspector-note").style.display = "block";
+            document.getElementById("start_tick").value = inspectorTarget["start_tick"];
+            document.getElementById("end_tick").value = inspectorTarget["end_tick"];
+            document.getElementById("left_pos").value = inspectorTarget["left_pos"];
+            document.getElementById("right_pos").value = inspectorTarget["right_pos"];
+            document.getElementById("kind").value = inspectorTarget["kind"];
+            document.getElementById("player_id").value = inspectorTarget["player_id"];
+
+            break;
+    }
+}
+
+
+//Update the current inspector target, aka the currently selected note
+export function updateInspectorTarget(key, value){
+    let oldNote = {...currentInspectorTarget};
+    currentInspectorTarget[key] = value;
+    
+    oldNote["exists"] = 0;
+    
+    getSession(currentSession).request({functionName: "update_chart", changes: [oldNote]});
+    getSession(currentSession).request({functionName: "update_chart", changes: [getSession(currentSession).notes_cache[currentInspectorTarget[key]]]});
+}
+
+
+//Tick args are necessary for anything that needs to find notes by position
+export function clickHandler(event, currentTick, tickHeight){
+    //Receive click coordinates in chart coordinates
+    let tick = tickAt(event.offsetX, event.offsetY, currentTick, tickHeight);
+    let x = canvasXToLaneX(event.offsetX);
+
+    if (currentMode = modes["navigate"]){
+    //Get any notes at that location
+        let notes = getNotesAt(getSession(currentSession).notes_cache, generateNoteHeight(tickHeight), x, tick);
+        
+        if (notes.length > 0){
+            currentInspectorTarget = notes[0];
+            setInspector(notes[0], inspectorStates["note"]);
+        }
+    }
+
+    //addClickMarker(graphicsContext, tick);
 }
