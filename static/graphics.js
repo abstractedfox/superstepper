@@ -140,6 +140,9 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     //the visual height of the note
     let height = generateNoteHeight(tickHeight);
     
+    let holdsBaseLayer = new gContextBuffer(graphicsContext);
+    let stepsBaseLayer = new gContextBuffer(graphicsContext);
+
     if (!(ypos_start - height > -1 && ypos_start - height < canvas_y 
         || (ypos_end < canvas_y && ypos_end > -1))){
         return;
@@ -170,20 +173,20 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     for (let i = 0; i < notedict["long_point"].length; i++){
         let ypos_point = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i]["tick"], tick);
         
-        graphicsContext.fillStyle = holdcolor;
+        holdsBaseLayer.set("fillStyle", [holdcolor]);
         if (i != 0){
             let ypos_lastPoint = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i-1]["tick"], tick);
             let swipeLeftBound = 0;
             let swipeRightBound = 0;
             
-            graphicsContext.beginPath();
+            holdsBaseLayer.call("beginPath", []);
             if (notedict["long_point"][i-1]["left_end_pos"] == null){
-                graphicsContext.moveTo(notedict["long_point"][i-1]["left_pos"] * xscale, ypos_lastPoint);
-                graphicsContext.lineTo(notedict["long_point"][i-1]["right_pos"] * xscale, ypos_lastPoint);
+                holdsBaseLayer.call("moveTo", [notedict["long_point"][i-1]["left_pos"] * xscale, ypos_lastPoint]);
+                holdsBaseLayer.call("lineTo", [notedict["long_point"][i-1]["right_pos"] * xscale, ypos_lastPoint]);
             }
             else{
-                graphicsContext.moveTo(notedict["long_point"][i-1]["left_end_pos"] * xscale, ypos_lastPoint);
-                graphicsContext.lineTo(notedict["long_point"][i-1]["right_end_pos"] * xscale, ypos_lastPoint);
+                holdsBaseLayer.call("moveTo", [notedict["long_point"][i-1]["left_end_pos"] * xscale, ypos_lastPoint]);
+                holdsBaseLayer.call("lineTo", [notedict["long_point"][i-1]["right_end_pos"] * xscale, ypos_lastPoint]);
 
                 if (notedict["long_point"][i-1]["left_end_pos"] < notedict["long_point"][i-1]["left_pos"]){
                     swipeLeftBound = notedict["long_point"][i-1]["left_end_pos"];
@@ -194,35 +197,38 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
                     swipeRightBound = notedict["long_point"][i-1]["right_end_pos"];
                 }
                 
-                graphicsContext.fillStyle = swipecolor;
-                
-                graphicsContext.fillRect(swipeLeftBound * xscale, ypos_lastPoint - height, (swipeRightBound - swipeLeftBound) * xscale, height);
-                
-                graphicsContext.fillStyle = holdcolor;
+                holdsBaseLayer.set("fillStyle", swipecolor);
+
+                holdsBaseLayer.call("fillRect", [swipeLeftBound * xscale, ypos_lastPoint - height, (swipeRightBound - swipeLeftBound) * xscale, height]); 
+
+                holdsBaseLayer.set("fillStyle", holdcolor);
             }
         }
         else{
             let ypos_lastPoint = ypos_start;
-            graphicsContext.beginPath();
-            graphicsContext.moveTo(notedict["left_pos"] * xscale, ypos_start);
-            graphicsContext.lineTo(notedict["right_pos"] * xscale, ypos_start);
+            holdsBaseLayer.call("beginPath");
+            holdsBaseLayer.call("moveTo", [notedict["left_pos"] * xscale, ypos_start]);
+            holdsBaseLayer.call("lineTo", [notedict["right_pos"] * xscale, ypos_start]);
         }
         
-        graphicsContext.lineTo(notedict["long_point"][i]["right_pos"] * xscale, ypos_point);
-        graphicsContext.lineTo(notedict["long_point"][i]["left_pos"] * xscale, ypos_point);
-        
-        graphicsContext.closePath();
-        graphicsContext.fill();
+        holdsBaseLayer.call("lineTo", [notedict["long_point"][i]["right_pos"] * xscale, ypos_point]);
+        holdsBaseLayer.call("lineTo", [notedict["long_point"][i]["left_pos"] * xscale, ypos_point]);
+
+        holdsBaseLayer.call("closePath");
+        holdsBaseLayer.call("fill");
     }
 
-    graphicsContext.fillStyle = color;
-    graphicsContext.fillRect(xPos, ypos_start - height, width, height); 
-    
+    stepsBaseLayer.set("fillStyle", color);
+    stepsBaseLayer.call("fillRect", [xPos, ypos_start - height, width, height]);
+
     if (showTicks){
         graphicsContext.fillStyle = colors["metatext"]; 
         graphicsContext.textAlign = "center";
         graphicsContext.fillText(notedict["start_tick"].toString(), xPos + (width/2), ypos_start);
     }
+    
+    holdsBaseLayer.exec();
+    stepsBaseLayer.exec();
 }
 
 
