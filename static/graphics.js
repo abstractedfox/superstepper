@@ -16,8 +16,8 @@ let colors = {"lane_bg": "#eeeeee",
                 "line": "#000000",
                 "step_l": "#cc0000",
                 "step_r": "#0000cc",
-                "swipe_l": "#990000",
-                "swipe_r": "#000099",
+                "swipe_l": "#995555",
+                "swipe_r": "#555599",
                 "hold_l": "#cc8888",
                 "hold_r": "#8888cc",
                 "step_down": "yellow",
@@ -140,7 +140,9 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     //the visual height of the note
     let height = generateNoteHeight(tickHeight);
     
+    //TODO: break out L/R/jump+down onto their own layers
     let holdsBaseLayer = new gContextBuffer(graphicsContext);
+    let holdsSwipeLayer = new gContextBuffer(graphicsContext);
     let stepsBaseLayer = new gContextBuffer(graphicsContext);
     let metaBaseLayer = new gContextBuffer(graphicsContext);
 
@@ -182,10 +184,12 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
             
             holdsBaseLayer.call("beginPath", []);
             if (notedict["long_point"][i-1]["left_end_pos"] == null){
+                //the previous hold did not end in a swipe
                 holdsBaseLayer.call("moveTo", [notedict["long_point"][i-1]["left_pos"] * xscale, ypos_lastPoint]);
                 holdsBaseLayer.call("lineTo", [notedict["long_point"][i-1]["right_pos"] * xscale, ypos_lastPoint]);
             }
             else{
+                //the previous hold ended in a swipe
                 holdsBaseLayer.call("moveTo", [notedict["long_point"][i-1]["left_end_pos"] * xscale, ypos_lastPoint]);
                 holdsBaseLayer.call("lineTo", [notedict["long_point"][i-1]["right_end_pos"] * xscale, ypos_lastPoint]);
 
@@ -198,11 +202,11 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
                     swipeRightBound = notedict["long_point"][i-1]["right_end_pos"];
                 }
                 
-                holdsBaseLayer.set("fillStyle", swipecolor);
+                holdsSwipeLayer.set("fillStyle", swipecolor);
 
-                holdsBaseLayer.call("fillRect", [swipeLeftBound * xscale, ypos_lastPoint - height, (swipeRightBound - swipeLeftBound) * xscale, height]); 
+                holdsSwipeLayer.call("fillRect", [swipeLeftBound * xscale, ypos_lastPoint - height, (swipeRightBound - swipeLeftBound) * xscale, height]); 
 
-                holdsBaseLayer.set("fillStyle", holdcolor);
+                //holdsBaseLayer.set("fillStyle", holdcolor);
             }
         }
         else{
@@ -229,6 +233,7 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     }
     
     holdsBaseLayer.exec();
+    holdsSwipeLayer.exec();
     stepsBaseLayer.exec();
     metaBaseLayer.exec();
 }
