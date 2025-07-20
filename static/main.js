@@ -120,12 +120,13 @@ export function updateInspectorTarget(key, value){
   
     console.assert(currentInspectorTarget.hasOwnProperty(key), key == true, "currentInspectorTarget hasOwnProperty " + key);
 
-    oldNote["exists"] = 0;
+    //TODO: do this in a better way
+    //oldNote["exists"] = 0;
     
-    getSession(currentSession).request({functionName: "update_chart", changes: [oldNote]});
-    console.log(getSession(currentSession).notes_cache);
-    getSession(currentSession).request({functionName: "update_chart", changes: [currentInspectorTarget]});
-    getSession(currentSession).updateCaches({steps: true});
+    //getSession(currentSession).request({functionName: "update_chart", changes: [oldNote]});
+    //console.log("jsyk" , currentInspectorTarget);
+    //getSession(currentSession).request({functionName: "update_chart", changes: [currentInspectorTarget]});
+    //getSession(currentSession).updateCaches({steps: true});
 }
 
 
