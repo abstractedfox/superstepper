@@ -113,14 +113,19 @@ function setInspector(inspectorTarget, inspectorState){
 
 
 //Update the current inspector target, aka the currently selected note
+//where 'key' is a value in the dict (ie a field for a note) 
 export function updateInspectorTarget(key, value){
-    let oldNote = {...currentInspectorTarget};
+    let oldNote = {...currentInspectorTarget}; //avoid shallow copy
     currentInspectorTarget[key] = value;
-    
+  
+    console.assert(currentInspectorTarget.hasOwnProperty(key), key == true, "currentInspectorTarget hasOwnProperty " + key);
+
     oldNote["exists"] = 0;
     
     getSession(currentSession).request({functionName: "update_chart", changes: [oldNote]});
-    getSession(currentSession).request({functionName: "update_chart", changes: [getSession(currentSession).notes_cache[currentInspectorTarget[key]]]});
+    console.log(getSession(currentSession).notes_cache);
+    getSession(currentSession).request({functionName: "update_chart", changes: [currentInspectorTarget]});
+    getSession(currentSession).updateCaches({steps: true});
 }
 
 
