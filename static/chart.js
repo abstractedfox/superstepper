@@ -32,6 +32,8 @@ export class APISession{
 
 
     async request({functionName = "", changes = [], data = {}, filename = null, raw_chart = null}){
+        let extraErrorChecks = false; 
+
         let newRequest = {"head": {"function": functionName}, "data": data};
         if (functionName != "init"){
             newRequest["head"]["id"] = this.ID;
@@ -53,6 +55,12 @@ export class APISession{
                 break
 
             case "update_chart":
+                if (extraErrorChecks){
+                    console.assert(changes.length != 0, "changes.length != 0");
+                    for (let x in changes){
+                        console.assert(changes[x] != undefined && changes[x] != null && changes[x] != 0, "found invalid value in changes," + changes[x]);
+                    }
+                }
                 newRequest["data"]["changes"] = changes;
                 break
 
