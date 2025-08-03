@@ -1,7 +1,7 @@
 "use strict";
 import { drawLane, updateViewportDimensions, updateLane, tickAt, canvasXToLaneX, generateNoteHeight, addClickMarker } from "./graphics.js";
 import { playing, audioContext, startOffset, bpm, lastStartTime } from "./audio.js";
-import { APISession, uploadChart, getSession, getNotesAt } from "./chart.js";
+import { uploadChart, getSession, getNotesAt } from "./chart.js";
 
 export let TIME_UNIT = 480;
 
