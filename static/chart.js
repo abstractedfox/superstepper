@@ -7,41 +7,30 @@ export function getSession(sessionID){
     return _sessions[sessionID];
 }
 
-//Statefully hold a chart that is being worked on
+//Statefully hold a chart that is 'open' 
 //This uses api_port to point to a running api instance that can be used to process to and from xml as needed
 export class ChartSession{
     constructor(api_port, rawData = null){
         this.port = port;
-        this.ID = null;
 
-        //useful fields for holding data retrieved from this session. _cache suffix indicates that these are not guaranteed to hold the current state of the chart 
-        this.notes_cache = null;
-        this.measures_cache = null;
-        this.bpms_cache = null;
+        //useful fields for holding data retrieved from this session.  suffix indicates that these are not guaranteed to hold the current state of the chart 
+        this.notes = null;
+        this.measures = null;
+        this.bpms = null;
         this.filename = chartFilename;
-    
-        this.initResponse = this.request({functionName: "init", filename: chartFilename, raw_chart: rawData});
-        this.initResponse.then((response) => {
-            this.ID = response["head"]["id"];
-        });
     }
 
     async setFromXML(rawData){
         await result = this.request({"function": "parse_chart"});
-        this.notes_cache = result["data"]["steps"];
-        this.measures_cache = result["data"]["measures"];
-        this.bpms_cache = result["data"]["bpms"];
+        this.notes = result["data"]["steps"];
+        this.measures = result["data"]["measures"];
+        this.bpms = result["data"]["bpms"];
     }
 
     async getAsXML(){
-        await result = this.request({"function": "process_to_xml", changes: this.notes_cache.concat(this.measures_cache.concat(this.bpms_cache))});
+        await result = this.request({"function": "process_to_xml", changes: this.notes.concat(this.measures.concat(this.bpms))});
         return result["data"]["raw_chart"];
     }
-
-    async isInitialized_awaitable(){
-        return this.initResponse;
-    }
-
 
     async request({functionName = "", changes = [], data = {}, filename = null, raw_chart = null}){
         let extraErrorChecks = false; 
