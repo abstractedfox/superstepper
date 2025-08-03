@@ -26,11 +26,16 @@ export class ChartSession{
         });
     }
 
-    async set_from_xml(rawData){
+    async setFromXML(rawData){
         await result = this.request({"function": "parse_chart"});
         this.notes_cache = result["data"]["steps"];
         this.measures_cache = result["data"]["measures"];
         this.bpms_cache = result["data"]["bpms"];
+    }
+
+    async getAsXML(){
+        await result = this.request({"function": "process_to_xml", changes: this.notes_cache.concat(this.measures_cache.concat(this.bpms_cache))});
+        return result["data"]["raw_chart"];
     }
 
     async isInitialized_awaitable(){
