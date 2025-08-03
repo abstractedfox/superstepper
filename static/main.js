@@ -61,7 +61,7 @@ export function step(timeval){
         updateLane(graphicsContext, null, currentTick.value, 1, dt);
     }
     else{
-        updateLane(graphicsContext, getSession(currentSession).notes_cache, parseInt(currentTick.value), 1, dt);
+        updateLane(graphicsContext, getSession(currentSession).notes, parseInt(currentTick.value), 1, dt);
     }
 
     if (debug){
@@ -86,7 +86,6 @@ export function setCurrentSession(sessionID){
     currentSession = sessionID;
 }
 
-
 export function start(canvasContext){
     graphicsContext = canvasContext;
     step();
@@ -110,7 +109,6 @@ function setInspector(inspectorTarget, inspectorState){
             break;
     }
 }
-
 
 //Update the current inspector target, aka the currently selected note
 //where 'key' is a value in the dict (ie a field for a note) 
