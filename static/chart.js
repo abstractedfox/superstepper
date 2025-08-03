@@ -10,25 +10,34 @@ export function getSession(sessionID){
 //Statefully hold a chart that is 'open' 
 //This uses api_port to point to a running api instance that can be used to process to and from xml as needed
 export class ChartSession{
-    constructor(api_port, rawData = null){
-        this.port = port;
+    constructor(api_port, chartFilename){
+        this.ID = Math.random(); //for differentiating separate open charts
 
-        //useful fields for holding data retrieved from this session.  suffix indicates that these are not guaranteed to hold the current state of the chart 
+        this.port = api_port;
         this.notes = null;
         this.measures = null;
         this.bpms = null;
         this.filename = chartFilename;
+
+        //legacy names to alias new names
+        this.notes_cache = this.notes;
+        this.measures_cache = this.measures;
+        this.bpms_cache = this.bpms;
     }
 
     async setFromXML(rawData){
-        await result = this.request({"function": "parse_chart"});
+        let result = await this.request({"functionName": "parse_chart", raw_chart: rawData});
         this.notes = result["data"]["steps"];
         this.measures = result["data"]["measures"];
         this.bpms = result["data"]["bpms"];
+        
+        this.notes_cache = this.notes;
+        this.measures_cache = this.measures;
+        this.bpms_cache = this.bpms;
     }
 
     async getAsXML(){
-        await result = this.request({"function": "process_to_xml", changes: this.notes.concat(this.measures.concat(this.bpms))});
+        let result = await this.request({"functionName": "process_to_xml", changes: this.notes.concat(this.measures.concat(this.bpms))});
         return result["data"]["raw_chart"];
     }
 
@@ -39,8 +48,6 @@ export class ChartSession{
         if (functionName != "init"){
             newRequest["head"]["id"] = this.ID;
         }
-
-        await this.isInitialized_awaitable();
 
         switch(functionName){
             case "init":
@@ -77,8 +84,16 @@ export class ChartSession{
             case "introspect_has_session":
                 break
 
+            case "parse_chart":
+                newRequest["data"]["raw_chart"] = raw_chart;
+                break
+
+            case "process_to_xml":
+                newRequest["data"]["changes"] = changes;
+                break
+
             default:
-                throw new Error("Invalid function " + functionName);
+                throw new Error("Invalid function " + functionName + ".");
         }
 
         let response = await fetch(`http://127.0.0.1:${this.port}/api`, {
@@ -208,7 +223,8 @@ export async function uploadChart(){
     let chartRawFile = document.getElementById("chart_upload").files[0];
     
     chartRawFile.text().then(async (file) => {
-        let session = new APISession(document.getElementById("port").value, document.getElementById("chart_upload").files[0].name, file);
+        /*
+         * let session = new APISession(document.getElementById("port").value, document.getElementById("chart_upload").files[0].name, file);
         await session.updateCaches({steps: true, bpms: true, measures: true}); 
         
         console.log(session.notes_cache);
@@ -224,6 +240,24 @@ export async function uploadChart(){
         let dropdownElement = document.getElementById("sessionDropdown");
         dropdownElement.add(dropdownOption);
         dropdownElement.selectedIndex = dropdownElement.options.length - 1;
+        */
+
+        let session = new ChartSession(document.getElementById("port").value, document.getElementById("chart_upload").files[0].name);
+        await session.setFromXML(file);
+
+        console.log(session.notes);
+        console.log(session.bpms);
+        console.log(session.measures);
+
+        _sessions[session.ID] = session;
+        setCurrentSession(session.ID);
+
+        let dropdownOption = document.createElement("option");
+        dropdownOption.text = session.filename + " " + session.ID;
+        let dropdownElement = document.getElementById("sessionDropdown");
+        dropdownElement.add(dropdownOption);
+        dropdownElement.selectedIndex = dropdownElement.options.length - 1;
+        
     });
 }
 
