@@ -111,20 +111,12 @@ function setInspector(inspectorTarget, inspectorState){
 }
 
 //Update the current inspector target, aka the currently selected note
-//where 'key' is a value in the dict (ie a field for a note) 
+//where 'key' is a value in the dict (ie a field for a note)
+//As of v3, this only updates the local chart in the browser
 export function updateInspectorTarget(key, value){
-    let oldNote = {...currentInspectorTarget}; //avoid shallow copy
     currentInspectorTarget[key] = value;
   
     console.assert(currentInspectorTarget.hasOwnProperty(key), key == true, "currentInspectorTarget hasOwnProperty " + key);
-
-    //TODO: do this in a better way
-    //oldNote["exists"] = 0;
-    
-    //getSession(currentSession).request({functionName: "update_chart", changes: [oldNote]});
-    //console.log("jsyk" , currentInspectorTarget);
-    //getSession(currentSession).request({functionName: "update_chart", changes: [currentInspectorTarget]});
-    //getSession(currentSession).updateCaches({steps: true});
 }
 
 
