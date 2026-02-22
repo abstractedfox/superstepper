@@ -1,17 +1,17 @@
-import { TIME_UNIT } from "./main.js"; 
+import { TIME_UNIT } from "./main.js";
 
 const LANE_WIDTH = 65536;
 
 let animatedObjects = []; //All currently-alive animated objects
 
-let viewport_x = window.innerWidth; 
-let viewport_y = window.innerHeight; 
+let viewport_x = window.innerWidth;
+let viewport_y = window.innerHeight;
 
 let canvas_x = document.getElementById("lane").width;
 let canvas_y = viewport_y;
 
 let colors = {"lane_bg": "#eeeeee",
-                "lane_pulse": "#eeeeff", 
+                "lane_pulse": "#eeeeff",
                 "hantei": "#ff0000",
                 "line": "#000000",
                 "step_l": "#cc0000",
@@ -31,23 +31,23 @@ dimensions["judgement_line_base"] = viewport_y - dimensions["judgement_line_heig
 let showTicks = true
 
 
-addEventListener("resize", (event) => { 
-    viewport_x = window.innerWidth; 
+addEventListener("resize", (event) => {
+    viewport_x = window.innerWidth;
     viewport_y = window.innerHeight;
     canvas_x = document.getElementById("lane").width;
     canvas_y = viewport_y;
-    
+
     dimensions["judgement_line_base"] = viewport_y - dimensions["judgement_line_height_from_bottom"];
 });
 
 
-//Get a note's y position on the screen relative to the current tick and scroll rate 
+//Get a note's y position on the screen relative to the current tick and scroll rate
     //tickHeight = height, in pixels, of one tick
-    //targetY = the position of the judgement line 
-    //currentTick = the tick we are offsetting for 
+    //targetY = the position of the judgement line
+    //currentTick = the tick we are offsetting for
 function scrollPosition(tickHeight, targetY, noteTick, currentTick){
-    let y = targetY - (noteTick - currentTick) * tickHeight; 
-    
+    let y = targetY - (noteTick - currentTick) * tickHeight;
+
     return y;
 }
 
@@ -107,7 +107,7 @@ class GraphicalStep{
         let ypos_end = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["end_tick"], tick);
 
         graphicsContext.fillStyle = this.color;
-        graphicsContext.fillRect(xPos, ypos_start - height, width, height); 
+        graphicsContext.fillRect(xPos, ypos_start - height, width, height);
     }
 }
 
@@ -177,13 +177,13 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     //This assumes long_points are sorted by tick ascending
     for (let i = 0; i < notedict["long_point"].length; i++){
         let ypos_point = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i]["tick"], tick);
-        
+
         holdsBaseLayer.set("fillStyle", [holdcolor]);
         if (i != 0){
             let ypos_lastPoint = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i-1]["tick"], tick);
             let swipeLeftBound = 0;
             let swipeRightBound = 0;
-            
+
             holdsBaseLayer.call("beginPath", []);
             if (notedict["long_point"][i-1]["left_end_pos"] == null){
                 //the previous hold did not end in a swipe
@@ -203,10 +203,10 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
                     swipeLeftBound = notedict["long_point"][i-1]["left_pos"];
                     swipeRightBound = notedict["long_point"][i-1]["right_end_pos"];
                 }
-                
+
                 holdsSwipeLayer.set("fillStyle", swipecolor);
 
-                holdsSwipeLayer.call("fillRect", [swipeLeftBound * xscale, ypos_lastPoint - height, (swipeRightBound - swipeLeftBound) * xscale, height]); 
+                holdsSwipeLayer.call("fillRect", [swipeLeftBound * xscale, ypos_lastPoint - height, (swipeRightBound - swipeLeftBound) * xscale, height]);
 
                 //holdsBaseLayer.set("fillStyle", holdcolor);
             }
@@ -217,7 +217,7 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
             holdsBaseLayer.call("moveTo", [notedict["left_pos"] * xscale, ypos_start]);
             holdsBaseLayer.call("lineTo", [notedict["right_pos"] * xscale, ypos_start]);
         }
-        
+
         holdsBaseLayer.call("lineTo", [notedict["long_point"][i]["right_pos"] * xscale, ypos_point]);
         holdsBaseLayer.call("lineTo", [notedict["long_point"][i]["left_pos"] * xscale, ypos_point]);
 
@@ -233,7 +233,7 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
         metaBaseLayer.set("textAlign", "center");
         metaBaseLayer.call("fillText", [notedict["start_tick"].toString(), xPos + (width/2), ypos_start]);
     }
-    
+
     holdsBaseLayer.exec();
     holdsSwipeLayer.exec();
     stepsBaseLayer.exec();
@@ -243,9 +243,9 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
 
 export function drawLane(graphicsContext){
     graphicsContext.fillStyle = colors["lane_bg"];
-    graphicsContext.fillRect(0, 0, dimensions.lane_w, viewport_y); 
+    graphicsContext.fillRect(0, 0, dimensions.lane_w, viewport_y);
 
-    graphicsContext.strokeStyle = colors["line"]; 
+    graphicsContext.strokeStyle = colors["line"];
     graphicsContext.beginPath();
     graphicsContext.moveTo(dimensions.lane_w / 4, 0);
     graphicsContext.lineTo(dimensions.lane_w / 4, viewport_y);
@@ -257,7 +257,7 @@ export function drawLane(graphicsContext){
     graphicsContext.lineTo(dimensions.lane_w / 2, viewport_y);
     graphicsContext.stroke();
     graphicsContext.closePath();
-     
+
     graphicsContext.beginPath();
     graphicsContext.moveTo((dimensions.lane_w / 4) * 3, 0);
     graphicsContext.lineTo((dimensions.lane_w / 4) * 3, viewport_y);
@@ -294,10 +294,10 @@ export function updateLane(graphicsContext, notes, tick, tickHeight, dt){
     if (notes == null){
         return;
     }
-    
+
 
     for (let i = 0; i < notes.length; i++){
-        drawNote(graphicsContext, notes[i], viewport_x, document.getElementById("tick_height").value, tick);     
+        drawNote(graphicsContext, notes[i], viewport_x, document.getElementById("tick_height").value, tick);
     }
     updateAnims(graphicsContext, dt, tick, tickHeight);
 }
@@ -323,10 +323,10 @@ export function scrollHandler(event){
     if (invert){
         sign = 1;
     }
-   
+
     if (!event.ctrlKey){
         let delta = document.getElementById("tick_height").value * event.deltaY * sign * multiplier;
-        document.getElementById("current_tick").value = parseInt(document.getElementById("current_tick").value) + delta; 
+        document.getElementById("current_tick").value = parseInt(document.getElementById("current_tick").value) + delta;
     }
     else{
         document.getElementById("tick_height").value = Math.max(0.001, parseFloat(document.getElementById("tick_height").value) + 0.05 * ((event.deltaY * sign) / 1000));
@@ -361,7 +361,7 @@ class Anim_TickGhost extends BaseAnim{
             this.alive = false;
             return;
         }
-        
+
         drawMarker(this._graphicsContext, colors["metatext"], "T: " + this._destinationTick, tick, tickHeight);
     }
 }
@@ -390,7 +390,7 @@ class gContextBuffer{
             //for functions that don't take arguments, it's nice to not have to pass an empty array
             args = [];
         }
-        
+
         this.calls.push([func, args]);
     }
 
