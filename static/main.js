@@ -20,7 +20,7 @@ let timestamp = 0; //fine position in the song
 
 let currentSession = null;
 let lasttimeval = 0;
-let currentTick = 0;
+let currentTick = null;
 
 let modes = {"navigate": "navigate"};
 let currentMode = modes["navigate"];
@@ -29,8 +29,9 @@ let inspectorStates = {"default": "default", "note": "note"}
 let currentInspectorState = inspectorStates["default"];
 let currentInspectorTarget = null;
 
-//TODO: rename this to something that doesn't sound like a chart element
-export function step(timeval){
+
+//Highest level function for an individual frame in the note lane
+export function advanceFrame(timeval){
     let dt = timeval - lasttimeval;
     currentTick = document.getElementById("current_tick");
 
@@ -74,7 +75,7 @@ export function step(timeval){
         graphicsContext.fillText("fps: " + Math.floor(1000/dt), 0, 60);
     }
     
-    requestAnimationFrame(step);
+    requestAnimationFrame(advanceFrame);
     lasttimeval = timeval;
 }
 
@@ -86,16 +87,16 @@ export function setCurrentSession(sessionID){
     currentSession = sessionID;
 }
 
+
+//Called once at the beginning of execution
 export function start(canvasContext){
     graphicsContext = canvasContext;
-    step();
+    advanceFrame();
 }
 
 
+//Set the user-side inspector
 function setInspector(inspectorTarget, inspectorState){
-    //Initialize the visual state
-    document.getElementById("inspector-note").style.display = "none";
-
     switch (inspectorState){
         case inspectorStates["note"]:
             document.getElementById("inspector-note").style.display = "block";
@@ -111,20 +112,12 @@ function setInspector(inspectorTarget, inspectorState){
 }
 
 //Update the current inspector target, aka the currently selected note
-//where 'key' is a value in the dict (ie a field for a note) 
+//where 'key' is a value in the dict (ie a field for a note)
+//As of v3, this only updates the local chart in the browser
 export function updateInspectorTarget(key, value){
-    let oldNote = {...currentInspectorTarget}; //avoid shallow copy
     currentInspectorTarget[key] = value;
   
     console.assert(currentInspectorTarget.hasOwnProperty(key), key == true, "currentInspectorTarget hasOwnProperty " + key);
-
-    //TODO: do this in a better way
-    //oldNote["exists"] = 0;
-    
-    //getSession(currentSession).request({functionName: "update_chart", changes: [oldNote]});
-    //console.log("jsyk" , currentInspectorTarget);
-    //getSession(currentSession).request({functionName: "update_chart", changes: [currentInspectorTarget]});
-    //getSession(currentSession).updateCaches({steps: true});
 }
 
 

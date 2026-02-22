@@ -7,47 +7,49 @@
         import { uploadChart } from "../static/chart.js";
         import { scrollHandler } from "../static/graphics.js";
 
-        document.querySelector("#button_play").addEventListener("click", (event) => { startAudio(document.getElementById("startTime").value)});
+        document.querySelector("#button_play").addEventListener("click", (event) => { startAudio(document.querySelector("#startTime").value)});
         document.querySelector("#button_stop").addEventListener("click", (event) => { stopAudio() });
 
-        document.getElementById("audio_upload").addEventListener("change", uploadAudio);
-        document.getElementById("chart_upload").addEventListener("change", uploadChart);
+        document.querySelector("#audio_upload").addEventListener("change", uploadAudio);
+        document.querySelector("#chart_upload").addEventListener("change", uploadChart);
 
-        document.getElementById("start_tick").addEventListener("input", () =>{ 
-            updateInspectorTarget("start_tick", parseInt(document.getElementById("start_tick").value));
+        document.querySelector("#start_tick").addEventListener("input", () =>{ 
+            updateInspectorTarget("start_tick", parseInt(document.querySelector("#start_tick").value));
         });
-        document.getElementById("end_tick").addEventListener("input", () =>{ 
-            updateInspectorTarget("end_tick", parseInt(document.getElementById("end_tick").value));
+        document.querySelector("#end_tick").addEventListener("input", () =>{ 
+            updateInspectorTarget("end_tick", parseInt(document.querySelector("#end_tick").value));
         });
-        document.getElementById("left_pos").addEventListener("input", () =>{ 
-            updateInspectorTarget("left_pos", parseInt(document.getElementById("left_pos").value));
+        document.querySelector("#left_pos").addEventListener("input", () =>{ 
+            updateInspectorTarget("left_pos", parseInt(document.querySelector("#left_pos").value));
         });
-        document.getElementById("right_pos").addEventListener("input", () =>{ 
-            updateInspectorTarget("right_pos", parseInt(document.getElementById("right_pos").value));
+        document.querySelector("#right_pos").addEventListener("input", () =>{ 
+            updateInspectorTarget("right_pos", parseInt(document.querySelector("#right_pos").value));
         });
-        document.getElementById("kind").addEventListener("input", () =>{ 
-            updateInspectorTarget("kind", parseInt(document.getElementById("kind").value));
+        document.querySelector("#kind").addEventListener("input", () =>{ 
+            updateInspectorTarget("kind", parseInt(document.querySelector("#kind").value));
         });
-        document.getElementById("player_id").addEventListener("input", () =>{ 
-            updateInspectorTarget("player_id", parseInt(document.getElementById("player_id").value));
+        document.querySelector("#player_id").addEventListener("input", () =>{ 
+            updateInspectorTarget("player_id", parseInt(document.querySelector("#player_id").value));
         });
 
-        for (const eventType of ["mousedown", "mouseup", "wheel", "mousemove"]){
-            document.getElementById("lane").addEventListener(eventType, (event) => { 
-                //note that you probably want event.offsetX, event.offsetY when relevant
-                if (eventType == "wheel"){
-                    scrollHandler(event);
-                }
+        document.querySelector("#lane").addEventListener("mousedown", (event) =>{ 
+            clickHandler(event, parseInt(document.querySelector("#current_tick").value), parseFloat(document.querySelector("#tick_height").value));
+        });
+        
+        document.querySelector("#lane").addEventListener("mouseup", (event) =>{ 
+        });
+        
+        document.querySelector("#lane").addEventListener("mousemove", (event) =>{ 
+            //note that you probably want event.offsetX, event.offsetY when relevant
+        });
+        
+        document.querySelector("#lane").addEventListener("wheel", (event) =>{ 
+            scrollHandler(event);
+        });
 
-                if (eventType == "mousedown"){
-                    clickHandler(event, parseInt(document.getElementById("current_tick").value), parseFloat(document.getElementById("tick_height").value));
-                }
-            });
-        }
+        document.querySelector("#sessionDropdown").onchange = () => { setCurrentSession(null); };
 
-        document.getElementById("sessionDropdown").onchange = () => { setCurrentSession(null); };
-
-        start(document.getElementById("lane").getContext("2d"));
+        start(document.querySelector("#lane").getContext("2d"));
     </script>
 
     <style type="text/css">

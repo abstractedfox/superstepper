@@ -1,17 +1,17 @@
-import { TIME_UNIT } from "./main.js"; 
+import { TIME_UNIT } from "./main.js";
 
 const LANE_WIDTH = 65536;
 
 let animatedObjects = []; //All currently-alive animated objects
 
-let viewport_x = window.innerWidth; 
-let viewport_y = window.innerHeight; 
+let viewport_x = window.innerWidth;
+let viewport_y = window.innerHeight;
 
 let canvas_x = document.getElementById("lane").width;
 let canvas_y = viewport_y;
 
 let colors = {"lane_bg": "#eeeeee",
-                "lane_pulse": "#eeeeff", 
+                "lane_pulse": "#eeeeff",
                 "hantei": "#ff0000",
                 "line": "#000000",
                 "step_l": "#cc0000",
@@ -30,28 +30,29 @@ dimensions["judgement_line_base"] = viewport_y - dimensions["judgement_line_heig
 
 let showTicks = true
 
-addEventListener("resize", (event) => { 
-    viewport_x = window.innerWidth; 
+
+addEventListener("resize", (event) => {
+    viewport_x = window.innerWidth;
     viewport_y = window.innerHeight;
     canvas_x = document.getElementById("lane").width;
     canvas_y = viewport_y;
-    
+
     dimensions["judgement_line_base"] = viewport_y - dimensions["judgement_line_height_from_bottom"];
 });
 
 
-//Get a note's y position relative to the current tick and scroll rate 
+//Get a note's y position on the screen relative to the current tick and scroll rate
     //tickHeight = height, in pixels, of one tick
-    //targetY = the position of the judgement line 
-    //currentTick = the tick we are offsetting for 
+    //targetY = the position of the judgement line
+    //currentTick = the tick we are offsetting for
 function scrollPosition(tickHeight, targetY, noteTick, currentTick){
-    let y = targetY - (noteTick - currentTick) * tickHeight; 
-    
+    let y = targetY - (noteTick - currentTick) * tickHeight;
+
     return y;
 }
 
-//TODO: go back and fix that this description does not match the current state of this function
-//For a given canvas coordinate pair, return a note at that location if it exists
+
+//For a location in the viewport, get the equivalent tick in the chart
 export function tickAt(canvasX, canvasY, currentTick, tickHeight){
     //this is just the scrollPosition math backwards
     let tick = (((canvasY - dimensions["judgement_line_base"]) / tickHeight) - currentTick) * -1;
@@ -59,6 +60,7 @@ export function tickAt(canvasX, canvasY, currentTick, tickHeight){
 }
 
 
+//Get a lane x coordinate for a canvas x coordinate
 export function canvasXToLaneX(canvasXPos){
     return (canvasXPos / canvas_x) * LANE_WIDTH;
 }
@@ -105,7 +107,7 @@ class GraphicalStep{
         let ypos_end = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["end_tick"], tick);
 
         graphicsContext.fillStyle = this.color;
-        graphicsContext.fillRect(xPos, ypos_start - height, width, height); 
+        graphicsContext.fillRect(xPos, ypos_start - height, width, height);
     }
 }
 
@@ -139,33 +141,38 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
 
     //the visual height of the note
     let height = generateNoteHeight(tickHeight);
-    
+
     //TODO: break out L/R/jump+down onto their own layers
     let holdsBaseLayer = new gContextBuffer(graphicsContext);
     let holdsSwipeLayer = new gContextBuffer(graphicsContext);
     let stepsBaseLayer = new gContextBuffer(graphicsContext);
     let metaBaseLayer = new gContextBuffer(graphicsContext);
 
-    if (!(ypos_start - height > -1 && ypos_start - height < canvas_y 
+    if (!(ypos_start - height > -1 && ypos_start - height < canvas_y
         || (ypos_end < canvas_y && ypos_end > -1))){
         return;
     }
 
-    if (notedict["kind"] == 1){
-        color = colors["step_l"];
-        holdcolor = colors["hold_l"];
-        swipecolor = colors["swipe_l"];
-    }
-    if (notedict["kind"] == 2){
-        color = colors["step_r"];
-        holdcolor = colors["hold_r"];
-        swipecolor = colors["swipe_r"];
-    }
-    if (notedict["kind"] == 3){
-        color = colors["step_down"];
-    }
-    if (notedict["kind"] == 4){
-        color = colors["step_jump"];
+    switch(notedict["kind"]){
+        case 1:
+            color = colors["step_l"];
+            holdcolor = colors["hold_l"];
+            swipecolor = colors["swipe_l"];
+            break;
+
+        case 2:
+            color = colors["step_r"];
+            holdcolor = colors["hold_r"];
+            swipecolor = colors["swipe_r"];
+            break;
+
+        case 3:
+            color = colors["step_down"];
+            break;
+
+        case 4:
+            color = colors["step_jump"];
+            break;
     }
 
     let width = (notedict["right_pos"] - notedict["left_pos"]) * xscale;
@@ -175,13 +182,13 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
     //This assumes long_points are sorted by tick ascending
     for (let i = 0; i < notedict["long_point"].length; i++){
         let ypos_point = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i]["tick"], tick);
-        
+
         holdsBaseLayer.set("fillStyle", [holdcolor]);
         if (i != 0){
             let ypos_lastPoint = scrollPosition(tickHeight, dimensions["judgement_line_base"], notedict["long_point"][i-1]["tick"], tick);
             let swipeLeftBound = 0;
             let swipeRightBound = 0;
-            
+
             holdsBaseLayer.call("beginPath", []);
             if (notedict["long_point"][i-1]["left_end_pos"] == null){
                 //the previous hold did not end in a swipe
@@ -201,10 +208,10 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
                     swipeLeftBound = notedict["long_point"][i-1]["left_pos"];
                     swipeRightBound = notedict["long_point"][i-1]["right_end_pos"];
                 }
-                
+
                 holdsSwipeLayer.set("fillStyle", swipecolor);
 
-                holdsSwipeLayer.call("fillRect", [swipeLeftBound * xscale, ypos_lastPoint - height, (swipeRightBound - swipeLeftBound) * xscale, height]); 
+                holdsSwipeLayer.call("fillRect", [swipeLeftBound * xscale, ypos_lastPoint - height, (swipeRightBound - swipeLeftBound) * xscale, height]);
 
                 //holdsBaseLayer.set("fillStyle", holdcolor);
             }
@@ -215,7 +222,7 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
             holdsBaseLayer.call("moveTo", [notedict["left_pos"] * xscale, ypos_start]);
             holdsBaseLayer.call("lineTo", [notedict["right_pos"] * xscale, ypos_start]);
         }
-        
+
         holdsBaseLayer.call("lineTo", [notedict["long_point"][i]["right_pos"] * xscale, ypos_point]);
         holdsBaseLayer.call("lineTo", [notedict["long_point"][i]["left_pos"] * xscale, ypos_point]);
 
@@ -231,7 +238,7 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
         metaBaseLayer.set("textAlign", "center");
         metaBaseLayer.call("fillText", [notedict["start_tick"].toString(), xPos + (width/2), ypos_start]);
     }
-    
+
     holdsBaseLayer.exec();
     holdsSwipeLayer.exec();
     stepsBaseLayer.exec();
@@ -241,9 +248,9 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
 
 export function drawLane(graphicsContext){
     graphicsContext.fillStyle = colors["lane_bg"];
-    graphicsContext.fillRect(0, 0, dimensions.lane_w, viewport_y); 
+    graphicsContext.fillRect(0, 0, dimensions.lane_w, viewport_y);
 
-    graphicsContext.strokeStyle = colors["line"]; 
+    graphicsContext.strokeStyle = colors["line"];
     graphicsContext.beginPath();
     graphicsContext.moveTo(dimensions.lane_w / 4, 0);
     graphicsContext.lineTo(dimensions.lane_w / 4, viewport_y);
@@ -255,7 +262,7 @@ export function drawLane(graphicsContext){
     graphicsContext.lineTo(dimensions.lane_w / 2, viewport_y);
     graphicsContext.stroke();
     graphicsContext.closePath();
-     
+
     graphicsContext.beginPath();
     graphicsContext.moveTo((dimensions.lane_w / 4) * 3, 0);
     graphicsContext.lineTo((dimensions.lane_w / 4) * 3, viewport_y);
@@ -292,10 +299,10 @@ export function updateLane(graphicsContext, notes, tick, tickHeight, dt){
     if (notes == null){
         return;
     }
-    
+
 
     for (let i = 0; i < notes.length; i++){
-        drawNote(graphicsContext, notes[i], viewport_x, document.getElementById("tick_height").value, tick);     
+        drawNote(graphicsContext, notes[i], viewport_x, document.getElementById("tick_height").value, tick);
     }
     updateAnims(graphicsContext, dt, tick, tickHeight);
 }
@@ -311,6 +318,7 @@ export function addClickMarker(graphicsContext, destinationTick){
     animatedObjects.push(new Anim_TickGhost(graphicsContext, 4000, destinationTick));
 }
 
+
 export function scrollHandler(event){
     //apparently, the 'wheel' event can be triggered by more than a scroll wheel, and can't be used to reliably determine scroll direction
     //however, we are only targeting mouse and keyboard users. we'll say -deltaY is scrolling up and +deltaY is scrolling down by default
@@ -320,15 +328,16 @@ export function scrollHandler(event){
     if (invert){
         sign = 1;
     }
-   
+
     if (!event.ctrlKey){
         let delta = document.getElementById("tick_height").value * event.deltaY * sign * multiplier;
-        document.getElementById("current_tick").value = parseInt(document.getElementById("current_tick").value) + delta; 
+        document.getElementById("current_tick").value = parseInt(document.getElementById("current_tick").value) + delta;
     }
     else{
         document.getElementById("tick_height").value = Math.max(0.001, parseFloat(document.getElementById("tick_height").value) + 0.05 * ((event.deltaY * sign) / 1000));
     }
 }
+
 
 class BaseAnim{
     constructor(graphicsContext){
@@ -357,15 +366,15 @@ class Anim_TickGhost extends BaseAnim{
             this.alive = false;
             return;
         }
-        
+
         drawMarker(this._graphicsContext, colors["metatext"], "T: " + this._destinationTick, tick, tickHeight);
     }
 }
 
 
-// Useful for being able to deliberately create separate graphics 'layers' without needing to change dramatically from making calls directly on the graphics context object
-// Usage pattern: Call .call on an instance with the name of the function (str) as the 1st argument and all normal arguments in the appropriate order as an array for the 2nd argument
-// Call .set to do the same for attributes. Wrapping in an array is optional for .set
+// Useful for creating separate graphics layers without needing a drastically different pattern from making calls directly on the graphics context object
+// Usage: Call .call on an instance with the name of the function (str) as the 1st argument and all normal arguments in the usual order in an array for the 2nd argument
+// Call .set to set attributes on the context. Wrapping in an array is optional for .set
 // When ready to draw, call exec()
 class gContextBuffer{
     constructor(graphicsContext){
@@ -386,7 +395,7 @@ class gContextBuffer{
             //for functions that don't take arguments, it's nice to not have to pass an empty array
             args = [];
         }
-        
+
         this.calls.push([func, args]);
     }
 
@@ -410,9 +419,8 @@ class gContextBuffer{
                 attr.apply(this.context, this.calls[i][1]);
             }
             else{
-                //if the object isn't a function, then we're setting an attribute
-                //this also means attr isn't a reference to anything, so we can't use it
-                //we could divert this through another function, and maybe we will later, but this does save the trouble of needing to differentiate the two on the stack without being able to lean on "an attribute can't be an array" (maybe they can be? idk)
+                //if attr.apply isn't a function, then we're setting an attribute
+                //this also means attr.apply isn't a reference to anything, so we can't use it
                 this.context[this.calls[i][0]] = this.calls[i][1][0];
             }
         }
