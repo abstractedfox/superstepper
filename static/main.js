@@ -30,9 +30,8 @@ let currentInspectorState = inspectorStates["default"];
 let currentInspectorTarget = null;
 
 
-//TODO: rename this to something that doesn't sound like a chart element
 //Highest level function for an individual frame in the note lane
-export function step(timeval){
+export function advanceFrame(timeval){
     let dt = timeval - lasttimeval;
     currentTick = document.getElementById("current_tick");
 
@@ -76,7 +75,7 @@ export function step(timeval){
         graphicsContext.fillText("fps: " + Math.floor(1000/dt), 0, 60);
     }
     
-    requestAnimationFrame(step);
+    requestAnimationFrame(advanceFrame);
     lasttimeval = timeval;
 }
 
@@ -92,7 +91,7 @@ export function setCurrentSession(sessionID){
 //Called once at the beginning of execution
 export function start(canvasContext){
     graphicsContext = canvasContext;
-    step();
+    advanceFrame();
 }
 
 
