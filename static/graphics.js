@@ -30,6 +30,7 @@ dimensions["judgement_line_base"] = viewport_y - dimensions["judgement_line_heig
 
 let showTicks = true
 
+
 addEventListener("resize", (event) => { 
     viewport_x = window.innerWidth; 
     viewport_y = window.innerHeight;
@@ -40,7 +41,7 @@ addEventListener("resize", (event) => {
 });
 
 
-//Get a note's y position relative to the current tick and scroll rate 
+//Get a note's y position on the screen relative to the current tick and scroll rate 
     //tickHeight = height, in pixels, of one tick
     //targetY = the position of the judgement line 
     //currentTick = the tick we are offsetting for 
@@ -50,8 +51,8 @@ function scrollPosition(tickHeight, targetY, noteTick, currentTick){
     return y;
 }
 
-//TODO: go back and fix that this description does not match the current state of this function
-//For a given canvas coordinate pair, return a note at that location if it exists
+
+//For a location in the viewport, get the equivalent tick in the chart
 export function tickAt(canvasX, canvasY, currentTick, tickHeight){
     //this is just the scrollPosition math backwards
     let tick = (((canvasY - dimensions["judgement_line_base"]) / tickHeight) - currentTick) * -1;
@@ -59,6 +60,7 @@ export function tickAt(canvasX, canvasY, currentTick, tickHeight){
 }
 
 
+//Get a lane x coordinate for a canvas x coordinate
 export function canvasXToLaneX(canvasXPos){
     return (canvasXPos / canvas_x) * LANE_WIDTH;
 }
@@ -311,6 +313,7 @@ export function addClickMarker(graphicsContext, destinationTick){
     animatedObjects.push(new Anim_TickGhost(graphicsContext, 4000, destinationTick));
 }
 
+
 export function scrollHandler(event){
     //apparently, the 'wheel' event can be triggered by more than a scroll wheel, and can't be used to reliably determine scroll direction
     //however, we are only targeting mouse and keyboard users. we'll say -deltaY is scrolling up and +deltaY is scrolling down by default
@@ -329,6 +332,7 @@ export function scrollHandler(event){
         document.getElementById("tick_height").value = Math.max(0.001, parseFloat(document.getElementById("tick_height").value) + 0.05 * ((event.deltaY * sign) / 1000));
     }
 }
+
 
 class BaseAnim{
     constructor(graphicsContext){
@@ -363,9 +367,9 @@ class Anim_TickGhost extends BaseAnim{
 }
 
 
-// Useful for being able to deliberately create separate graphics 'layers' without needing to change dramatically from making calls directly on the graphics context object
-// Usage pattern: Call .call on an instance with the name of the function (str) as the 1st argument and all normal arguments in the appropriate order as an array for the 2nd argument
-// Call .set to do the same for attributes. Wrapping in an array is optional for .set
+// Useful for creating separate graphics layers without needing a drastically different pattern from making calls directly on the graphics context object
+// Usage: Call .call on an instance with the name of the function (str) as the 1st argument and all normal arguments in the usual order in an array for the 2nd argument
+// Call .set to set attributes on the context. Wrapping in an array is optional for .set
 // When ready to draw, call exec()
 class gContextBuffer{
     constructor(graphicsContext){
@@ -410,9 +414,8 @@ class gContextBuffer{
                 attr.apply(this.context, this.calls[i][1]);
             }
             else{
-                //if the object isn't a function, then we're setting an attribute
-                //this also means attr isn't a reference to anything, so we can't use it
-                //we could divert this through another function, and maybe we will later, but this does save the trouble of needing to differentiate the two on the stack without being able to lean on "an attribute can't be an array" (maybe they can be? idk)
+                //if attr.apply isn't a function, then we're setting an attribute
+                //this also means attr.apply isn't a reference to anything, so we can't use it
                 this.context[this.calls[i][0]] = this.calls[i][1][0];
             }
         }

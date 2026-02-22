@@ -7,8 +7,7 @@ export let audioContext;
 let beatSeconds = 0; //length of one beat in seconds
 let beatDistancePx = 50; //amount of vertical px comprising one beat
 let speedMod = 1;
-let chartRawFile;
-export let startOffset = 0; //an arbitrary amount of lag when the audio first starts
+export let startOffset = 0; //amount of lag when the audio first starts
 export let lastStartTime = 0; //start time used for the most recent playback, used for offsetting timestamp to position in the song
 
 let debug = false;
@@ -27,6 +26,7 @@ function baseAudioOffset(){
 }
 
 
+//startTime is in beats
 export async function startAudio(startTime){
     if (audio != null){
         bpm = parseInt(document.getElementById("bpmInput").value);
@@ -56,7 +56,7 @@ export async function startAudio(startTime){
             console.log("Start: " + audio.name);
         }
 
-        //yes, this is actually the only way i've found that works 
+        //Yes, this is the only method for setting initial offset i've found that works reliably
         while (audioContext.currentTime == 0);
         startOffset = audioContext.currentTime;
     }

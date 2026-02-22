@@ -29,7 +29,9 @@ let inspectorStates = {"default": "default", "note": "note"}
 let currentInspectorState = inspectorStates["default"];
 let currentInspectorTarget = null;
 
+
 //TODO: rename this to something that doesn't sound like a chart element
+//Highest level function for an individual frame in the note lane
 export function step(timeval){
     let dt = timeval - lasttimeval;
     currentTick = document.getElementById("current_tick");

@@ -7,6 +7,7 @@ export function getSession(sessionID){
     return _sessions[sessionID];
 }
 
+
 //Statefully hold a chart that is 'open' 
 //This uses api_port to point to a running api instance that can be used to process to and from xml as needed
 export class ChartSession{
@@ -122,6 +123,7 @@ export class ChartSession{
 }
 
 
+//Establish a session for a chart supplied by the user
 export async function uploadChart(){
     let chartRawFile = document.getElementById("chart_upload").files[0];
     
@@ -141,13 +143,12 @@ export async function uploadChart(){
         let dropdownElement = document.getElementById("sessionDropdown");
         dropdownElement.add(dropdownOption);
         dropdownElement.selectedIndex = dropdownElement.options.length - 1;
-        
     });
 }
 
 
-//Known issue: At low zoom scales, this seems to lose precision
 //Get all notes at an exact x position and tick, accounting for visual note height
+//Known issue: At low zoom scales, this seems to lose precision
 export function getNotesAt(noteDicts, noteHeight, xPos, tick){
     let results = [];
     for (let note in noteDicts){
