@@ -32,18 +32,20 @@
             updateInspectorTarget("player_id", parseInt(document.getElementById("player_id").value));
         });
 
-        for (const eventType of ["mousedown", "mouseup", "wheel", "mousemove"]){
-            document.getElementById("lane").addEventListener(eventType, (event) => { 
-                //note that you probably want event.offsetX, event.offsetY when relevant
-                if (eventType == "wheel"){
-                    scrollHandler(event);
-                }
-
-                if (eventType == "mousedown"){
-                    clickHandler(event, parseInt(document.getElementById("current_tick").value), parseFloat(document.getElementById("tick_height").value));
-                }
-            });
-        }
+        document.getElementById("lane").addEventListener("mousedown", (event) =>{ 
+            clickHandler(event, parseInt(document.getElementById("current_tick").value), parseFloat(document.getElementById("tick_height").value));
+        });
+        
+        document.getElementById("lane").addEventListener("mouseup", (event) =>{ 
+        });
+        
+        document.getElementById("lane").addEventListener("mousemove", (event) =>{ 
+            //note that you probably want event.offsetX, event.offsetY when relevant
+        });
+        
+        document.getElementById("lane").addEventListener("wheel", (event) =>{ 
+            scrollHandler(event);
+        });
 
         document.getElementById("sessionDropdown").onchange = () => { setCurrentSession(null); };
 

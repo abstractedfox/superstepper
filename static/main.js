@@ -20,7 +20,7 @@ let timestamp = 0; //fine position in the song
 
 let currentSession = null;
 let lasttimeval = 0;
-let currentTick = 0;
+let currentTick = null;
 
 let modes = {"navigate": "navigate"};
 let currentMode = modes["navigate"];
@@ -88,16 +88,16 @@ export function setCurrentSession(sessionID){
     currentSession = sessionID;
 }
 
+
+//Called once at the beginning of execution
 export function start(canvasContext){
     graphicsContext = canvasContext;
     step();
 }
 
 
+//Set the user-side inspector
 function setInspector(inspectorTarget, inspectorState){
-    //Initialize the visual state
-    document.getElementById("inspector-note").style.display = "none";
-
     switch (inspectorState){
         case inspectorStates["note"]:
             document.getElementById("inspector-note").style.display = "block";
