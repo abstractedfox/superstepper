@@ -141,33 +141,38 @@ function drawNote(graphicsContext, notedict, viewport_width, tickHeight, tick){
 
     //the visual height of the note
     let height = generateNoteHeight(tickHeight);
-    
+
     //TODO: break out L/R/jump+down onto their own layers
     let holdsBaseLayer = new gContextBuffer(graphicsContext);
     let holdsSwipeLayer = new gContextBuffer(graphicsContext);
     let stepsBaseLayer = new gContextBuffer(graphicsContext);
     let metaBaseLayer = new gContextBuffer(graphicsContext);
 
-    if (!(ypos_start - height > -1 && ypos_start - height < canvas_y 
+    if (!(ypos_start - height > -1 && ypos_start - height < canvas_y
         || (ypos_end < canvas_y && ypos_end > -1))){
         return;
     }
 
-    if (notedict["kind"] == 1){
-        color = colors["step_l"];
-        holdcolor = colors["hold_l"];
-        swipecolor = colors["swipe_l"];
-    }
-    if (notedict["kind"] == 2){
-        color = colors["step_r"];
-        holdcolor = colors["hold_r"];
-        swipecolor = colors["swipe_r"];
-    }
-    if (notedict["kind"] == 3){
-        color = colors["step_down"];
-    }
-    if (notedict["kind"] == 4){
-        color = colors["step_jump"];
+    switch(notedict["kind"]){
+        case 1:
+            color = colors["step_l"];
+            holdcolor = colors["hold_l"];
+            swipecolor = colors["swipe_l"];
+            break;
+
+        case 2:
+            color = colors["step_r"];
+            holdcolor = colors["hold_r"];
+            swipecolor = colors["swipe_r"];
+            break;
+
+        case 3:
+            color = colors["step_down"];
+            break;
+
+        case 4:
+            color = colors["step_jump"];
+            break;
     }
 
     let width = (notedict["right_pos"] - notedict["left_pos"]) * xscale;
