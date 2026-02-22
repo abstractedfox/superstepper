@@ -19,11 +19,6 @@ export class ChartSession{
         this.measures = null;
         this.bpms = null;
         this.filename = chartFilename;
-
-        //legacy names to alias new names
-        this.notes_cache = this.notes;
-        this.measures_cache = this.measures;
-        this.bpms_cache = this.bpms;
     }
 
     async setFromXML(rawData){
@@ -31,10 +26,6 @@ export class ChartSession{
         this.notes = result["data"]["steps"];
         this.measures = result["data"]["measures"];
         this.bpms = result["data"]["bpms"];
-        
-        this.notes_cache = this.notes;
-        this.measures_cache = this.measures;
-        this.bpms_cache = this.bpms;
     }
 
     async getAsXML(){
@@ -106,19 +97,6 @@ export class ChartSession{
         });
 
         return response.json();
-    }
-
-
-    async updateCaches({steps = false, bpms = false, measures = false}){
-        if (steps){
-            this.notes_cache = (await this.request({functionName: "get_steps"}))["data"]["steps"]; 
-        }
-        if (bpms){
-            this.bpms_cache = (await this.request({functionName: "get_bpms"}))["data"]["bpms"];
-        }
-        if (measures){
-            this.measures_cache = (await this.request({functionName: "get_measures"}))["data"]["measures"]; 
-        }
     }
 }
 
